@@ -133,3 +133,13 @@ nav a{font-size:13px;padding:10px 4px}
 .defit{background:#fff;border-radius:12px;padding:10px 12px;box-shadow:0 1px 4px #0001}
 .defit b{color:var(--b)}
 .defit p{margin:4px 0 0;color:var(--m);font-size:14px}
+
+/* v17 · iconos info+vídeo, selector de variante de material, filtro de progresión */
+.iconrow{display:inline-flex;gap:6px;margin-left:6px;vertical-align:middle}
+.ibtn{width:auto;background:#eef1f6;color:var(--d);border-radius:8px;padding:3px 8px;margin:0;font-size:13px;box-shadow:none;display:inline-flex;align-items:center;text-decoration:none}
+.vpick{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.vbtn{width:auto;background:#eef1f6;color:var(--d);padding:7px 12px;margin:0;font-size:13px;box-shadow:none;border-radius:10px}
+.vbtn.on{background:var(--b);color:#fff}
+.vchips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 2px}
+.vchip{width:auto;background:#eef1f6;color:var(--d);padding:6px 12px;margin:0;font-size:12px;box-shadow:none;border-radius:16px}
+.vchip.on{background:var(--b);color:#fff}
