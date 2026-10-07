@@ -237,7 +237,8 @@ function nav() {
   document.getElementById('top').style.display = me ? 'flex' : 'none';
   const el = document.getElementById('nav'); if (!me) { el.style.display = 'none'; return; }
   const t = me.role === 'TRAINER', l = t ? [['', 'Clientes'], ['seg', 'Seguimiento'], ['ej', 'Ejercicios'], ['bases', 'Bases'], ['perfil', 'Perfil']] : [['', 'Inicio'], ['hist', 'Historial'], ['ej', 'Ejercicios'], ['perfil', 'Perfil']];
-  el.style.display = 'flex'; el.innerHTML = l.map(([k, n]) => `<a href="#/${k}" class="${(location.hash.split('/')[1] || '') === k ? 'on' : ''}">${n}</a>`).join('');
+  const IC = { Inicio: '<path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>', Historial: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', Ejercicios: '<path d="M6 7v10M3 9v6M18 7v10M21 9v6M6 12h12"/>', Perfil: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>', Clientes: '<circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.5 3-6 7-6s7 2.5 7 6"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14c2.5.7 4 2.7 4 6"/>', Seguimiento: '<path d="M3 12h4l3-8 4 16 3-8h4"/>', Bases: '<path d="M12 3 3 8l9 5 9-5-9-5zM3 13l9 5 9-5"/>' };
+  el.style.display = 'flex'; el.innerHTML = l.map(([k, n]) => `<a href="#/${k}" class="${(location.hash.split('/')[1] || '') === k ? 'on' : ''}"><svg viewBox="0 0 24 24" aria-hidden="true">${IC[n] || ''}</svg><span>${n}</span></a>`).join('');
 }
 async function route() {
   if (rec) return; $app.onclick = null;
@@ -252,7 +253,7 @@ window.addEventListener('hashchange', route);
 
 // ---------- COMPARTIDAS ----------
 const TUTORIAL = `<div class="card tutcard"><div class="tuthead">📖 Aprende a usar la app</div><p class="muted">Toca una sección para ver cómo funciona</p>
- <details class="tut2"><summary><span class="ic" style="background:#dbeafe">🏠</span>Inicio</summary><div><p>Aquí ves tu <b>semana actual</b> y cuántas sesiones has completado. Con las flechas ‹ › cambias de semana. Las sesiones pendientes salen en gris y las hechas en verde.</p><p>Pulsa <b>EMPEZAR SESIÓN</b> (o toca cualquier sesión pendiente) y sigue estos pasos:</p><ol class="steps"><li>Cada ejercicio muestra las <b>series</b>, las <b>repeticiones</b> y el <b>RIR</b> objetivo. Si tienes dudas con estas palabras, mira el apartado 📚 Definiciones de aquí abajo. Lee también las notas de tu entrenador y, si hay una ℹ️ junto al nombre, tócala para ver la explicación del ejercicio.</li><li>Después de <b>cada serie</b>, apunta el <b>peso (kg)</b> y las <b>repeticiones</b> que has hecho. Al rellenar la serie 1, las de abajo se rellenan solas; cámbialas si has hecho algo distinto.</li><li>Si el ejercicio es <b>por tiempo</b> (por ejemplo una plancha o un sprint), en vez de peso y repeticiones verás un botón ▶ con una cuenta atrás. Pulsa para empezar; si aguantas hasta el final se marca solo, y si no llegas, pulsa el mismo botón para pararla y que guarde el tiempo real.</li><li>Si el ejercicio tiene vídeo, pulsa <b>▶️ Ver vídeo</b> para verlo dentro de la propia app.</li><li>Pulsa <b>🕘</b> junto al nombre del ejercicio para ver lo que hiciste la última vez (peso y repeticiones de cada serie), por si no te acuerdas.</li><li>Al terminar, toca la cara que mejor describa <b>cómo te has sentido</b> (RPE, de 1 fácil a 10 máximo) y, si quieres, escribe una observación.</li><li>Pulsa <b>FINALIZAR SESIÓN</b>. Hasta que no lo pulses, tu entrenador no verá la sesión.</li></ol><p>Si sales a mitad, lo escrito se guarda en tu móvil y lo recuperas al volver. Puedes editar una sesión hasta 3 días después de terminarla.</p></div></details>
+ <details class="tut2"><summary><span class="ic" style="background:#dbeafe">🏠</span>Inicio</summary><div><p>Arriba ves tu <b>semana</b> con una tira L M X J V S D: los días con sesión salen con borde y los ya hechos rellenos. Debajo, desliza las <b>tarjetas</b> de cada día para ver los primeros ejercicios. Con las flechas ‹ › cambias de semana.</p><p>Pulsa <b>EMPEZAR SESIÓN</b> en la tarjeta y sigue estos pasos:</p><ol class="steps"><li>Cada ejercicio muestra las <b>series</b>, las <b>repeticiones</b> y el <b>RIR</b> objetivo. Si tienes dudas con estas palabras, mira el apartado 📚 Definiciones de aquí abajo. Lee también las notas de tu entrenador y, si hay una ℹ️ junto al nombre, tócala para ver la explicación del ejercicio.</li><li>Después de <b>cada serie</b>, apunta el <b>peso (kg)</b> y las <b>repeticiones</b> que has hecho. Al rellenar la serie 1, las de abajo se rellenan solas; cámbialas si has hecho algo distinto.</li><li>Si el ejercicio es <b>por tiempo</b> (por ejemplo una plancha o un sprint), en vez de peso y repeticiones verás un botón ▶ con una cuenta atrás. Pulsa para empezar; si aguantas hasta el final se marca solo, y si no llegas, pulsa el mismo botón para pararla y que guarde el tiempo real.</li><li>Si el ejercicio tiene vídeo, pulsa <b>▶️ Ver vídeo</b> para verlo dentro de la propia app.</li><li>Pulsa <b>🕘</b> junto al nombre del ejercicio para ver lo que hiciste la última vez (peso y repeticiones de cada serie), por si no te acuerdas.</li><li>Al terminar, toca la cara que mejor describa <b>cómo te has sentido</b> (RPE, de 1 fácil a 10 máximo) y, si quieres, escribe una observación.</li><li>Pulsa <b>FINALIZAR SESIÓN</b>. Hasta que no lo pulses, tu entrenador no verá la sesión.</li></ol><p>Si sales a mitad, lo escrito se guarda en tu móvil y lo recuperas al volver. Puedes editar una sesión hasta 3 días después de terminarla.</p></div></details>
  <details class="tut2"><summary><span class="ic" style="background:#dcfce7">🕘</span>Historial</summary><div>Todas las sesiones que has completado, agrupadas por semana. El círculo de color junto a la fecha es tu RPE de esa sesión (verde, esfuerzo bajo; rojo, esfuerzo máximo). Toca una para ver los pesos y repeticiones que apuntaste (y editarla si han pasado menos de 3 días).</div></details>
  <details class="tut2"><summary><span class="ic" style="background:#fef3c7">🏋️</span>Ejercicios</summary><div>Cada ejercicio que has hecho, con tu último peso, tu mejor peso y la diferencia desde la primera vez. Si lo has hecho con distinto material (máquina, barra, peso libre, polea, sin material), puedes filtrar la gráfica por cada uno tocando sus etiquetas. Tócalo para ver la gráfica de tu progresión y el historial. (Los ejercicios por tiempo, como planchas o sprints, no aparecen aquí todavía.)</div></details>
  <details class="tut2"><summary><span class="ic" style="background:#ede9fe">📚</span>Definiciones</summary><div class="defs">
@@ -584,22 +585,67 @@ const T = {
 };
 
 // ---------- CLIENTE ----------
+// ---------- INICIO: tira semanal, mensajes, carrusel ----------
+const WDL = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+const wdIdx = n => { const s = String(n || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); return ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'].findIndex(x => s.startsWith(x)); };
+const todayIdx = () => (new Date(new Date().toLocaleString('en-US', { timeZone: tz })).getDay() + 6) % 7;
+const MOTIV = ['Hoy toca sumar. Una serie bien hecha ya es avance.', 'No hace falta que sea perfecto, hace falta que lo hagas.', 'Tu yo de dentro de un mes te lo agradecerá.', 'Calienta bien y disfruta del entreno.', 'Constancia por encima de intensidad. Hoy, a por ello.', 'Cada repetición cuenta. Empieza y el resto viene solo.', 'Hoy es un buen día para superarte, aunque sea por poco.', 'Escucha a tu cuerpo, técnica primero y los kilos después.', 'Lo difícil es empezar. Ya casi lo tienes.', 'Entrenar hoy es invertir en cómo te vas a sentir mañana.', 'Un paso más que ayer. Eso es progresar.', 'Respira, concéntrate y ve serie a serie.', 'Tu constancia es tu mejor herramienta.', 'Haz lo de hoy y deja que el tiempo haga el resto.', 'Hoy no compites con nadie, solo contigo.', 'Buen día para una buena sesión. Tú puedes.', 'La motivación te trae, el hábito te mantiene.', 'Hidrátate, calienta y a disfrutar.', 'Pequeños avances cada día se convierten en grandes cambios.', 'Si hoy cuesta, hoy cuenta aún más.', 'Tu entrenador cuenta contigo. ¡Vamos!', 'Concentración en cada serie. Calidad antes que cantidad.', 'Sal de la sesión con la sensación de haber dado lo mejor.', 'Un buen entreno empieza con un buen calentamiento.', 'No busques la sesión perfecta, busca la sesión hecha.', 'Hoy entrenas para ser más fuerte, más ágil y más sano.', 'Cuando termines te sentirás mejor que ahora.', 'Disfruta del proceso, los resultados llegan.', 'Una sesión más hecha es una excusa menos.', 'Con calma y con ganas. Hoy toca entrenar.'];
+const motiv = () => { const k = Math.floor(Date.now() / 864e5) + (me?.id ? me.id.charCodeAt(0) + me.id.charCodeAt(3) : 0); return MOTIV[k % MOTIV.length]; };
+function weekStrip(days, doneSet, isCur) {
+  const ti = isCur ? todayIdx() : -1;
+  return `<div class="wstrip">${WDL.map((l, i) => { const d = days.find(x => wdIdx(x.day_name) === i), cls = `wd ${d ? (doneSet.has(d.id) ? 'dn' : 'has') : 'off'} ${i === ti ? 'td' : ''}`; return d ? `<button type="button" class="${cls}" data-goto="${d.id}" aria-label="${esc(d.day_name)}">${l}</button>` : `<span class="${cls}">${l}</span>`; }).join('')}</div>`;
+}
+function dayCard(d, sidMap, isToday) {
+  const ex = [...(d.workout_exercises || [])].sort((a, b) => a.exercise_order - b.exercise_order), done = !!sidMap[d.id];
+  const li = ex.slice(0, 3).map(x => `<li><span>${esc(x.exercises?.name || '')}</span><b>${x.sets}×${x.track_mode === 'time' ? fmtTime(x.duration_target) : x.reps_min + '–' + x.reps_max}</b></li>`).join('');
+  return `<div class="dc ${done ? 'done' : ''} ${isToday ? 'today' : ''}" id="dc_${d.id}"><div class="dct"><span>${esc(d.day_name)}</span>${isToday ? '<em>HOY</em>' : ''}${done ? '<em class="ok">✓ HECHA</em>' : ''}</div><h3>${esc(d.title)}</h3><ul>${li}</ul>${ex.length > 3 ? `<small>+${ex.length - 3} más</small>` : ''}<p class="dcs">${ex.length} ejercicio${ex.length === 1 ? '' : 's'}</p>${done ? `<a class="btn" href="#/ver/${sidMap[d.id]}">VER SESIÓN</a>` : `<a class="btn" href="#/sesion/${d.id}">EMPEZAR SESIÓN</a>`}</div>`;
+}
+// ---------- CIERRE DE SESIÓN: animación y récords ----------
+async function finishScreen(rows, ex, sid) {
+  const byEx = Object.fromEntries(ex.map(x => [x.id, x])), vol = rows.reduce((t, r) => t + (r.weight && r.reps ? r.weight * r.reps : 0), 0);
+  let recs = [];
+  try {
+    const ids = [...new Set(ex.map(x => x.exercise_id))];
+    const H = await ok(sb.from('set_logs').select('weight,reps,workout_exercises!inner(exercise_id),workout_sessions!inner(client_id,completed)').in('workout_exercises.exercise_id', ids).eq('workout_sessions.client_id', me.id).eq('workout_sessions.completed', true).neq('session_id', sid));
+    const best = {}; H.forEach(l => { if (!l.weight || !l.reps) return; const e = l.workout_exercises.exercise_id, v = l.weight * (1 + l.reps / 30); if (!(best[e] >= v)) best[e] = v; });
+    const cur = {}; rows.forEach(r => { if (!r.weight || !r.reps) return; const x = byEx[r.workout_exercise_id], v = r.weight * (1 + r.reps / 30); if (!cur[x.exercise_id] || v > cur[x.exercise_id].v) cur[x.exercise_id] = { v, w: r.weight, r: r.reps, name: x.exercises.name }; });
+    recs = Object.entries(cur).filter(([e, c]) => best[e] && c.v > best[e] + 0.01).map(([e, c]) => `${c.name}: ${c.w} kg × ${c.r} · 1RM est. ${Math.round(c.v)} kg (antes ${Math.round(best[e])})`).slice(0, 5);
+  } catch (er) { console.error(er); }
+  return new Promise(res => {
+    const o = document.createElement('div'); o.className = 'fin';
+    o.innerHTML = `<div class="conf">${Array.from({ length: 28 }, (_, i) => `<i style="--x:${(i * 37) % 100}%;--d:${(i % 7) * .15}s;--c:${i % 4}"></i>`).join('')}</div><div class="fc"><div class="chk">✓</div><h2>¡Sesión completada!</h2><div class="fst"><div><b>${rows.length}</b><small>series</small></div><div><b>${Math.round(vol)}</b><small>kg de volumen</small></div></div>${recs.length ? `<div class="rec"><b>🏆 Récords</b>${recs.map(t => `<p>${esc(t)}</p>`).join('')}</div>` : ''}<button type="button">CONTINUAR</button></div>`;
+    document.body.appendChild(o);
+    o.querySelector('button').onclick = () => { o.remove(); location.hash = '#/hist'; res(); };
+  });
+}
+
 const C = {
   async home(h) {
     const hr = +new Date().toLocaleString('es-ES', { timeZone: tz, hour: 'numeric', hour12: false }), sal = hr < 13 ? 'Buenos días' : hr < 21 ? 'Buenas tardes' : 'Buenas noches';
     if (!me.trainer_id) return html(`<div class="hero"><small>${sal}</small><h2>${esc(me.nombre)} 👋</h2><p>Aún no tienes entrenador asignado. Abre el enlace de invitación que te ha enviado Víctor.</p></div>`);
     const [ws, ses, vol] = await Promise.all([
-      ok(sb.from('workout_weeks').select('*,workout_days(id,day_name,title,day_order)').eq('client_id', me.id)),
-      ok(sb.from('workout_sessions').select('id,workout_day_id,completed_at').eq('client_id', me.id).eq('completed', true).order('completed_at', { ascending: false })),
+      ok(sb.from('workout_weeks').select('*,workout_days(id,day_name,title,day_order,workout_exercises(exercise_order,sets,reps_min,reps_max,track_mode,duration_target,exercises(name)))').eq('client_id', me.id)),
+      ok(sb.from('workout_sessions').select('id,workout_day_id,completed_at,rpe').eq('client_id', me.id).eq('completed', true).order('completed_at', { ascending: false })),
       ok(sb.from('set_logs').select('weight,reps,duration_seconds,workout_exercises(exercises(category)),workout_sessions!inner(client_id,completed,started_at)').eq('workout_sessions.client_id', me.id).eq('workout_sessions.completed', true))]);
     const cw = curWeek(ws), wn = h && h[0] === 'sem' ? +h[1] : 0, sorted = [...ws].sort((a, b) => a.week_number - b.week_number), ad = adherence(ws, ses);
     const st = stat(ws, ses, wn ? ws.find(x => x.week_number === wn) : null), sid = Object.fromEntries(ses.map(s => [s.workout_day_id, s.id]));
     const i = sorted.findIndex(x => x.id === st.w?.id), pv = sorted[i - 1], nx = sorted[i + 1], pct = st.days?.length ? Math.round(st.done / st.days.length * 100) : 0;
-    html(`<div class="hero"><small>${sal}</small><h2>${esc(me.nombre)} 👋</h2>${st.w ? `<div class="wk"><a class="${pv ? '' : 'off'}" href="#/sem/${(pv || st.w).week_number}">‹</a><b>Semana ${st.w.week_number}${st.w.id === cw?.id ? ' <span class="tag">actual</span>' : ''}</b><a class="${nx ? '' : 'off'}" href="#/sem/${(nx || st.w).week_number}">›</a></div><div class="bar"><i style="width:${pct}%"></i></div><p>${st.done} de ${st.days.length} sesiones completadas</p>${st.w.id !== cw?.id ? '<a class="back" href="#/">Volver a la semana actual</a>' : ''}` : '<p>Tu entrenador aún no ha programado tu semana.</p>'}
-     ${ad.pct !== null ? `<div class="wk"><span>✅ Cumplimiento: <b>${ad.pct}%</b></span>${ad.streak >= 2 ? `<span>🔥 Racha: <b>${ad.streak}</b></span>` : ''}</div>` : ''}</div>
+    const isCur = st.w?.id === cw?.id, tdi = isCur ? todayIdx() : -1, tdDay = st.days?.find(d => wdIdx(d.day_name) === tdi), allDays = Object.fromEntries(ws.flatMap(w => w.workout_days.map(d => [d.id, { ...d, wk: w.week_number }])));
+    const mot = !isCur || !tdDay ? '' : st.doneSet.has(tdDay.id) ? '<div class="mot">🎉 Hoy ya has cumplido. Ahora toca recuperar.</div>' : `<div class="mot">💬 ${motiv()}</div>`;
+    const cards = st.days?.map(d => dayCard(d, sid, tdDay?.id === d.id)).join('') || '';
+    html(`<div class="hero cmp"><h2 class="g">${sal}, ${esc(me.nombre)} 👋</h2>${st.w ? `<div class="wk"><a class="${pv ? '' : 'off'}" href="#/sem/${(pv || st.w).week_number}">‹</a><b>Semana ${st.w.week_number}${isCur ? ' <span class="tag">actual</span>' : ''}</b><a class="${nx ? '' : 'off'}" href="#/sem/${(nx || st.w).week_number}">›</a></div>${weekStrip(st.days, st.doneSet, isCur)}<div class="bar"><i style="width:${pct}%"></i></div><p class="hs2">${st.done} de ${st.days.length} sesiones${ad.pct !== null ? ` · ✅ ${ad.pct}%` : ''}${ad.streak >= 2 ? ` · 🔥 ${ad.streak}` : ''}</p>${!isCur ? '<a class="back" href="#/">Volver a la semana actual</a>' : ''}` : '<p>Tu entrenador aún no ha programado tu semana.</p>'}</div>
+     ${mot}
+     ${st.w ? `<div class="car" id="car">${cards}</div><div class="dots" id="dots">${st.days.map((_, k) => `<i class="${k === 0 ? 'on' : ''}"></i>`).join('')}</div>${st.next ? '' : '<div class="card done">¡Semana completada! 💪</div>'}` : ''}
      ${volumeCard(vol)}
-     ${st.next ? `<div class="card next"><small class="muted">Próxima sesión</small><h3>${esc(st.next.day_name)} · ${esc(st.next.title)}</h3><a class="btn" href="#/sesion/${st.next.id}">EMPEZAR SESIÓN</a></div>` : st.w ? '<div class="card done">¡Semana completada! 💪</div>' : ''}
-     ${st.w ? '<h3>Tus sesiones</h3>' + st.days.map(d => sid[d.id] ? `<a class="card link done" href="#/ver/${sid[d.id]}"><b>✓ ${esc(d.day_name)}</b> — ${esc(d.title)}</a>` : `<a class="card link pend" href="#/sesion/${d.id}"><b>${esc(d.day_name)}</b> — ${esc(d.title)}</a>`).join('') : ''}`);
+     <h3>Historial de sesiones</h3>${ses.length ? ses.slice(0, 5).map(s => { const d = allDays[s.workout_day_id]; return `<a class="card link done" href="#/ver/${s.id}"><b>✓ ${esc(d?.day_name || '')}</b> — ${esc(d?.title || '')}<br><small class="muted">${fd(s.completed_at)}${s.rpe ? ' · RPE ' + s.rpe : ''}</small></a>`; }).join('') + '<a class="back" href="#/hist">Ver todo el historial →</a>' : '<p class="muted">Aún no has completado ninguna sesión.</p>'}`);
+    const car = document.getElementById('car'), dots = document.getElementById('dots');
+    if (car) {
+      const cs = [...car.children], target = document.getElementById('dc_' + (tdDay?.id || st.next?.id)) || cs[0];
+      if (target) car.scrollLeft = target.offsetLeft - (car.clientWidth - target.offsetWidth) / 2;
+      const mark = () => { let b = 0, bd = 1e9; cs.forEach((c, k) => { const dd = Math.abs(c.offsetLeft + c.offsetWidth / 2 - car.scrollLeft - car.clientWidth / 2); if (dd < bd) { bd = dd; b = k; } }); [...dots.children].forEach((o, k) => o.classList.toggle('on', k === b)); };
+      car.addEventListener('scroll', mark, { passive: true }); mark();
+    }
+    $app.onclick = e => { const b = e.target.closest('[data-goto]'); if (b) document.getElementById('dc_' + b.dataset.goto)?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); };
   },
   sem(h) { return C.home(h); },
   async hist() {
@@ -618,14 +664,18 @@ const C = {
     const lg = (x, n) => s?.set_logs.find(l => l.workout_exercise_id === x.id && l.set_number === n);
     const lgT = (x, n) => lg(x, n)?.duration_seconds;
     const lgV = x2 => s?.set_logs.find(l => l.workout_exercise_id === x2.id)?.variant;
+    const nr = x => Math.max(x.sets, ...(s?.set_logs || []).filter(l => l.workout_exercise_id === x.id).map(l => l.set_number));
+    const repRow = (x, n) => `<div class="setrow"><span>Serie ${n}</span><input name="w_${x.id}_${n}" inputmode="decimal" placeholder="kg" value="${lg(x, n)?.weight ?? ''}"><input name="r_${x.id}_${n}" inputmode="numeric" placeholder="reps" value="${lg(x, n)?.reps ?? ''}"></div>`;
+    const timeRow = (x, n) => { const key = `${x.id}_${n}`, done = lgT(x, n); return `<div class="timerow"><span>Serie ${n}</span><span class="tcount" id="tc_${key}">${done ? fmtClock(done) + ' ✓' : fmtClock(x.duration_target)}</span><button type="button" class="sm ${done ? '' : 'start'}" data-start="${key}" data-target="${x.duration_target}" ${done ? 'disabled' : ''}>${done ? '✓' : '▶'}</button><input type="hidden" name="t_${key}" value="${done ?? ''}"></div>`; };
+    const setBtns = x => `<div class="setbtns"><button type="button" class="ghost sm" data-addset="${x.id}">+ Serie</button><button type="button" class="ghost sm" data-rmset="${x.id}">− Serie</button></div>`;
     const vPicker = x2 => `<div class="vpick">${Object.entries(VARIANTS).map(([k, l]) => `<button type="button" class="vbtn ${(lgV(x2) ?? x2.variant) === k ? 'on' : ''}" data-vset="${x2.id}" data-v="${k}">${l}</button>`).join('')}<input type="hidden" name="v_${x2.id}" value="${(lgV(x2) ?? x2.variant) || ''}"></div>`;
     html(`<a href="#/">← Inicio</a><h2>${esc(d.day_name)} — ${esc(d.title)}</h2>${s?.completed ? '<div class="card">✏️ Estás editando una sesión ya completada (se puede hasta 3 días después).</div>' : ''}<form id="sf">
      ${ex.map(x => x.track_mode === 'time' ? `<div class="card"><b>${esc(x.exercises.name)}</b>${iconRow(x.exercises.description, x.exercises.video_url, x.exercise_id, s?.id)}<br><small>${x.sets} × ${fmtTime(x.duration_target)}</small>
       ${x.trainer_notes ? `<p class="quote">${esc(x.trainer_notes)}</p>` : ''}${vPicker(x)}
-      ${Array.from({ length: x.sets }, (_, i) => { const n = i + 1, key = `${x.id}_${n}`, done = lgT(x, n); return `<div class="timerow"><span>Serie ${n}</span><span class="tcount" id="tc_${key}">${done ? fmtClock(done) + ' ✓' : fmtClock(x.duration_target)}</span><button type="button" class="sm ${done ? '' : 'start'}" data-start="${key}" data-target="${x.duration_target}" ${done ? 'disabled' : ''}>${done ? '✓' : '▶'}</button><input type="hidden" name="t_${key}" value="${done ?? ''}"></div>`; }).join('')}</div>`
+      <div class="sets" data-x="${x.id}">${Array.from({ length: nr(x) }, (_, i) => timeRow(x, i + 1)).join('')}</div>${setBtns(x)}</div>`
        : `<div class="card"><b>${esc(x.exercises.name)}</b>${iconRow(x.exercises.description, x.exercises.video_url, x.exercise_id, s?.id)}<br><small>${x.sets} × ${x.reps_min}–${x.reps_max} · RIR objetivo: ${x.rir_min}–${x.rir_max}</small>
       ${x.trainer_notes ? `<p class="quote">${esc(x.trainer_notes)}</p>` : ''}${vPicker(x)}
-      ${Array.from({ length: x.sets }, (_, i) => `<div class="setrow"><span>Serie ${i + 1}</span><input name="w_${x.id}_${i + 1}" inputmode="decimal" placeholder="kg" value="${lg(x, i + 1)?.weight ?? ''}"><input name="r_${x.id}_${i + 1}" inputmode="numeric" placeholder="reps" value="${lg(x, i + 1)?.reps ?? ''}"></div>`).join('')}</div>`).join('')}
+      <div class="sets" data-x="${x.id}">${Array.from({ length: nr(x) }, (_, i) => repRow(x, i + 1)).join('')}</div>${setBtns(x)}</div>`).join('')}
      <div class="card"><b>¿Cómo te has sentido?</b><div class="rpe">${Array.from({ length: 10 }, (_, i) => `<label><input type="radio" name="rpe" value="${i + 1}" ${s?.rpe === i + 1 ? 'checked' : ''}><span style="--h:${130 - i * 13}">${RPE[i][0]}<small>${i + 1}</small></span></label>`).join('')}</div><p id="rl" class="rl muted">Toca cómo ha sido de duro</p></div>
      <div class="card"><b>Observaciones</b><textarea name="obs" maxlength="2000" placeholder="¿Cómo ha ido?">${esc(s?.observations || '')}</textarea></div>
      <p class="err" id="se"></p><button>FINALIZAR SESIÓN</button></form>`);
@@ -643,7 +693,25 @@ const C = {
       btn.textContent = '✓'; btn.disabled = true; btn.classList.remove('start');
       save();
     }
+    const rowsOf = x => sf.querySelector(`.sets[data-x="${x.id}"]`).children.length;
+    function addRow(x, n) {
+      const box = sf.querySelector(`.sets[data-x="${x.id}"]`); box.insertAdjacentHTML('beforeend', x.track_mode === 'time' ? timeRow(x, n) : repRow(x, n));
+      if (x.track_mode !== 'time' && n > 1) ['w', 'r'].forEach(k => { const p = sf.elements[`${k}_${x.id}_${n - 1}`], o = sf.elements[`${k}_${x.id}_${n}`]; if (p && o && p.value && !o.value) { o.value = p.value; o.dataset.auto = '1'; } });
+    }
     sf.addEventListener('click', e => {
+      const as = e.target.closest('[data-addset]'), rm = e.target.closest('[data-rmset]');
+      if (as || rm) {
+        const xid = (as || rm).dataset.addset || (as || rm).dataset.rmset, x = ex.find(q => q.id === xid), cnt = rowsOf(x);
+        if (as) { if (cnt >= 12) { toast('Máximo 12 series'); return; } addRow(x, cnt + 1); }
+        else {
+          if (cnt <= 1) return;
+          const last = sf.querySelector(`.sets[data-x="${xid}"]`).lastElementChild, filled = [...last.querySelectorAll('input')].some(i => i.value);
+          if (filled && !confirm('Se borrará esa serie. ¿Seguro?')) return;
+          const tk = `${xid}_${cnt}`; if (timers[tk]) { clearInterval(timers[tk]); delete timers[tk]; }
+          last.remove();
+        }
+        save(); return;
+      }
       const vb = e.target.closest('[data-vset]');
       if (vb) { const exid = vb.dataset.vset, vv = vb.dataset.v; sf.querySelectorAll(`[data-vset="${exid}"]`).forEach(o => o.classList.toggle('on', o === vb)); const inp = sf.elements['v_' + exid]; if (inp) inp.value = vv; save(); return; }
       const b = e.target.closest('[data-start]'); if (!b) return; e.preventDefault();
@@ -663,6 +731,7 @@ const C = {
     try {
       const dr = JSON.parse(localStorage.getItem(key) || 'null');
       if (dr) {
+        Object.keys(dr).forEach(k => { const m = k.match(/^[wrt]_([^_]+)_(\d+)$/), x = m && ex.find(q => q.id === m[1]); if (!x) return; while (rowsOf(x) < +m[2] && rowsOf(x) < 12) addRow(x, rowsOf(x) + 1); });
         Object.entries(dr).forEach(([k, v]) => {
           const el = sf.elements[k]; if (el) el.value = v;
           const tm = k.match(/^t_(.+)$/);
@@ -678,13 +747,13 @@ const C = {
       ex.forEach(x => {
         const variant = f.get(`v_${x.id}`) || null;
         if (x.track_mode === 'time') {
-          for (let n = 1; n <= x.sets; n++) {
+          for (let n = 1; n <= rowsOf(x); n++) {
             const t = f.get(`t_${x.id}_${n}`); if (!t) continue;
             const secs = +t; if (!Number.isFinite(secs) || secs <= 0 || secs > 3600) bad = 'Hay un tiempo no válido en ' + x.exercises.name + '.';
             rows.push({ workout_exercise_id: x.id, set_number: n, duration_seconds: secs, variant });
           }
         } else {
-          for (let n = 1; n <= x.sets; n++) {
+          for (let n = 1; n <= rowsOf(x); n++) {
             const w = f.get(`w_${x.id}_${n}`).trim().replace(',', '.'), r = f.get(`r_${x.id}_${n}`).trim(); if (!w && !r) continue;
             if ((!w || +w === 0) && (!r || +r === 0)) continue; /* 0 kg y 0 reps: serie no hecha */
             if (/^\d+$/.test(r) && +r === 0) continue; /* 0 repeticiones: serie no hecha */
@@ -702,7 +771,8 @@ const C = {
         const gone = (s?.set_logs || []).filter(l => !rows.some(r => r.workout_exercise_id === l.workout_exercise_id && r.set_number === l.set_number)).map(l => l.id);
         if (gone.length) await ok(sb.from('set_logs').delete().in('id', gone));
         await ok(sb.from('workout_sessions').update({ completed: true, completed_at: s?.completed_at || new Date().toISOString(), rpe, observations: f.get('obs').trim() || null }).eq('id', se.id));
-        try { localStorage.removeItem(key); } catch (er) { console.error(er); } toast('Sesión guardada'); location.hash = '#/hist';
+        try { localStorage.removeItem(key); } catch (er) { console.error(er); }
+        if (!s?.completed) await finishScreen(rows, ex, se.id); else { toast('Sesión guardada'); location.hash = '#/hist'; }
       } catch (er) { console.error(er); E.textContent = 'No se ha podido guardar la sesión. Comprueba tu conexión e inténtalo de nuevo.'; btn.disabled = false; btn.textContent = 'FINALIZAR SESIÓN'; }
     };
   }
