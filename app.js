@@ -330,8 +330,9 @@ async function exView(cid, back) {
     return `<details class="card it ${cc(e.c)}" data-exid="${id}" data-mg="${esc(e.mg)}"><summary><b>${esc(e.n)}</b></summary>${chips}<div class="vbody">${bodyHtml(ptsOf(e.byVariant, ''))}</div></details>`;
   });
   const silhouette = `<div class="card silcard"><div class="row"><b>🧍 Por zona del cuerpo</b><div class="segtab"><button class="segtabbtn on" data-view="front">Frontal</button><button class="segtabbtn" data-view="back">Posterior</button></div></div>
+   <p class="muted c silhint">Pulsa el músculo que quieres ver. Las zonas en color tienen ejercicios registrados.</p>
    <div class="bodywrap"><div id="bodyFront">${bodySvg('front', hasData, null, sil)}</div><div id="bodyBack" style="display:none">${bodySvg('back', hasData, null, sil)}</div></div>
-   <p class="muted c" id="mgLabel"><small>Toca una zona para filtrar (en color, tienes ejercicios registrados)</small></p></div>`;
+   <p class="muted c" id="mgLabel"></p></div>`;
   html(`${back ? `<a href="${back}">← Volver</a>` : ''}<h2>Progresión por ejercicio</h2>${silhouette}<p class="muted">Cada punto es el mejor peso de una sesión.</p><div id="exList">${items.join('') || '<p class="muted">Todavía no hay registros.</p>'}</div>`);
   let activeMg = null;
   const redrawBody = () => { document.getElementById('bodyFront').innerHTML = bodySvg('front', hasData, activeMg, sil); document.getElementById('bodyBack').innerHTML = bodySvg('back', hasData, activeMg, sil); };
@@ -345,9 +346,9 @@ async function exView(cid, back) {
     const el = e.target.closest('[data-mg]'); if (!el) return;
     activeMg = activeMg === el.dataset.mg ? null : el.dataset.mg;
     redrawBody();
-    document.getElementById('mgLabel').innerHTML = activeMg ? `<small>Mostrando: <b>${esc(activeMg)}</b> · <a href="#" id="mgClear">ver todos</a></small>` : '<small>Toca una zona para filtrar (en color, tienes ejercicios registrados)</small>';
+    document.getElementById('mgLabel').innerHTML = activeMg ? `<small>Mostrando: <b>${esc(activeMg)}</b> · <a href="#" id="mgClear">ver todos</a></small>` : '';
     $app.querySelectorAll('#exList [data-exid]').forEach(d2 => { d2.style.display = (!activeMg || d2.dataset.mg === activeMg) ? '' : 'none'; });
-    const clr = document.getElementById('mgClear'); if (clr) clr.onclick = ev2 => { ev2.preventDefault(); activeMg = null; redrawBody(); document.getElementById('mgLabel').innerHTML = '<small>Toca una zona para filtrar (en color, tienes ejercicios registrados)</small>'; $app.querySelectorAll('#exList [data-exid]').forEach(d2 => d2.style.display = ''); };
+    const clr = document.getElementById('mgClear'); if (clr) clr.onclick = ev2 => { ev2.preventDefault(); activeMg = null; redrawBody(); document.getElementById('mgLabel').innerHTML = ''; $app.querySelectorAll('#exList [data-exid]').forEach(d2 => d2.style.display = ''); };
   });
   $app.querySelectorAll('.vchips').forEach(row => row.addEventListener('click', e => {
     const b = e.target.closest('.vchip'); if (!b) return;
@@ -595,6 +596,8 @@ function weekStrip(days, doneSet, isCur) {
   const ti = isCur ? todayIdx() : -1;
   return `<div class="wstrip">${WDL.map((l, i) => { const d = days.find(x => wdIdx(x.day_name) === i), cls = `wd ${d ? (doneSet.has(d.id) ? 'dn' : 'has') : 'off'} ${i === ti ? 'td' : ''}`; return d ? `<button type="button" class="${cls}" data-goto="${d.id}" aria-label="${esc(d.day_name)}">${l}</button>` : `<span class="${cls}">${l}</span>`; }).join('')}</div>`;
 }
+const WDN = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+const restCard = i => `<div class="dc rest today" id="dc_rest"><div class="dct"><span>${WDN[i]}</span><em>HOY</em></div><h3>Descanso</h3><p class="rt">Hoy no hay entreno. Camina, estira o haz movilidad. Descansar también entrena.</p></div>`;
 function dayCard(d, sidMap, isToday) {
   const ex = [...(d.workout_exercises || [])].sort((a, b) => a.exercise_order - b.exercise_order), done = !!sidMap[d.id];
   const li = ex.slice(0, 3).map(x => `<li><span>${esc(x.exercises?.name || '')}</span><b>${x.sets}×${x.track_mode === 'time' ? fmtTime(x.duration_target) : x.reps_min + '–' + x.reps_max}</b></li>`).join('');
@@ -632,15 +635,17 @@ const C = {
     const i = sorted.findIndex(x => x.id === st.w?.id), pv = sorted[i - 1], nx = sorted[i + 1], pct = st.days?.length ? Math.round(st.done / st.days.length * 100) : 0;
     const isCur = st.w?.id === cw?.id, tdi = isCur ? todayIdx() : -1, tdDay = st.days?.find(d => wdIdx(d.day_name) === tdi), allDays = Object.fromEntries(ws.flatMap(w => w.workout_days.map(d => [d.id, { ...d, wk: w.week_number }])));
     const mot = !isCur || !tdDay ? '' : st.doneSet.has(tdDay.id) ? '<div class="mot">🎉 Hoy ya has cumplido. Ahora toca recuperar.</div>' : `<div class="mot">💬 ${motiv()}</div>`;
-    const cards = st.days?.map(d => dayCard(d, sid, tdDay?.id === d.id)).join('') || '';
+    const cardsArr = st.days?.map(d => dayCard(d, sid, tdDay?.id === d.id)) || []; let restAt = -1;
+    if (isCur && st.w && !tdDay) { const k = st.days.findIndex(d => wdIdx(d.day_name) > tdi); restAt = k < 0 ? cardsArr.length : k; cardsArr.splice(restAt, 0, restCard(tdi)); }
+    const cards = cardsArr.join('');
     html(`<div class="hero cmp"><h2 class="g">${sal}, ${esc(me.nombre)} 👋</h2>${st.w ? `<div class="wk"><a class="${pv ? '' : 'off'}" href="#/sem/${(pv || st.w).week_number}">‹</a><b>Semana ${st.w.week_number}${isCur ? ' <span class="tag">actual</span>' : ''}</b><a class="${nx ? '' : 'off'}" href="#/sem/${(nx || st.w).week_number}">›</a></div>${weekStrip(st.days, st.doneSet, isCur)}<div class="bar"><i style="width:${pct}%"></i></div><p class="hs2">${st.done} de ${st.days.length} sesiones${ad.pct !== null ? ` · ✅ ${ad.pct}%` : ''}${ad.streak >= 2 ? ` · 🔥 ${ad.streak}` : ''}</p>${!isCur ? '<a class="back" href="#/">Volver a la semana actual</a>' : ''}` : '<p>Tu entrenador aún no ha programado tu semana.</p>'}</div>
      ${mot}
-     ${st.w ? `<div class="car" id="car">${cards}</div><div class="dots" id="dots">${st.days.map((_, k) => `<i class="${k === 0 ? 'on' : ''}"></i>`).join('')}</div>${st.next ? '' : '<div class="card done">¡Semana completada! 💪</div>'}` : ''}
+     ${st.w ? `<div class="car" id="car">${cards}</div><div class="dots" id="dots">${cardsArr.map((_, k) => `<i class="${k === 0 ? 'on' : ''}"></i>`).join('')}</div>${st.next ? '' : '<div class="card done">¡Semana completada! 💪</div>'}` : ''}
      ${volumeCard(vol)}
      <h3>Historial de sesiones</h3>${ses.length ? ses.slice(0, 5).map(s => { const d = allDays[s.workout_day_id]; return `<a class="card link done" href="#/ver/${s.id}"><b>✓ ${esc(d?.day_name || '')}</b> — ${esc(d?.title || '')}<br><small class="muted">${fd(s.completed_at)}${s.rpe ? ' · RPE ' + s.rpe : ''}</small></a>`; }).join('') + '<a class="back" href="#/hist">Ver todo el historial →</a>' : '<p class="muted">Aún no has completado ninguna sesión.</p>'}`);
     const car = document.getElementById('car'), dots = document.getElementById('dots');
     if (car) {
-      const cs = [...car.children], target = document.getElementById('dc_' + (tdDay?.id || st.next?.id)) || cs[0];
+      const cs = [...car.children], target = document.getElementById('dc_' + (tdDay ? tdDay.id : restAt >= 0 ? 'rest' : st.next?.id)) || cs[0];
       if (target) car.scrollLeft = target.offsetLeft - (car.clientWidth - target.offsetWidth) / 2;
       const mark = () => { let b = 0, bd = 1e9; cs.forEach((c, k) => { const dd = Math.abs(c.offsetLeft + c.offsetWidth / 2 - car.scrollLeft - car.clientWidth / 2); if (dd < bd) { bd = dd; b = k; } }); [...dots.children].forEach((o, k) => o.classList.toggle('on', k === b)); };
       car.addEventListener('scroll', mark, { passive: true }); mark();

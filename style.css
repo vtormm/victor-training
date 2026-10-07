@@ -268,3 +268,9 @@ nav a svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;
 @keyframes fall{to{transform:translateY(105vh) rotate(540deg);opacity:.9}}
 @media (prefers-reduced-motion:reduce){.chk,.conf i{animation:none}.conf{display:none}}
 
+/* v25 · texto sobre la silueta y tarjeta de descanso */
+.silhint{margin:2px 0 6px}.muted.c:empty{display:none}
+.dc.rest{background:var(--card);color:var(--d);border:1px dashed var(--border,#cbd5e1);box-shadow:none;justify-content:flex-start}
+.dc.rest .rt{margin:8px 0;font-size:15px;line-height:1.5;opacity:.9}
+.dc.rest em{background:var(--b);color:#fff}
+
