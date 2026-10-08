@@ -332,3 +332,12 @@ header#top .hp svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-w
 .ps .pd{width:54px;height:54px;flex:none;border-radius:12px;display:grid;place-items:center;background:linear-gradient(160deg,var(--p1),var(--p2));color:#fff;font-weight:800}
 .ps b{display:block}.ps small{color:var(--m)}
 
+/* v27 · ajustes tras las capturas: volumen, pestaña activa, enlaces y saludo */
+.vb{display:block}.vl{margin-bottom:10px}
+.vl .big{display:block;line-height:1.1}
+.dl{font-size:14px;margin-top:4px}
+@media (min-width:520px){.vb{display:flex;gap:16px;align-items:flex-end}.vl{flex:0 0 40%;margin-bottom:0}.vr{flex:1}}
+:root[data-theme="neon"] nav a.on{background:var(--sf2);color:var(--p3)}
+.row>a{text-decoration:none;font-weight:600;white-space:nowrap}
+@media (min-width:380px){.greet{grid-template-columns:1.15fr 1fr;align-items:center}}
+

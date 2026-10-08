@@ -44,7 +44,7 @@ const volumeCard = L => {
   const cur = buckets[curW] || { kg: 0, time: 0, cats: {} }, prev = buckets[prevW] || { kg: 0, time: 0, cats: {} };
   if (!cur.kg && !cur.time && !prev.kg && !prev.time) return '';
   const deltaKg = prev.kg ? Math.round((cur.kg - prev.kg) / prev.kg * 100) : null;
-  const headline = cur.kg ? `${Math.round(cur.kg).toLocaleString('es-ES')} kg` : cur.time ? fmtTime(cur.time) : '0 kg';
+  const headline = cur.kg ? `${Math.round(cur.kg).toLocaleString('es-ES')}<small> kg</small>` : cur.time ? fmtTime(cur.time) : '0<small> kg</small>';
   window.__volRows = Object.entries(cur.cats).sort((a, b) => (b[1].kg || b[1].time) - (a[1].kg || a[1].time)).map(([k, v]) => {
     const ref = cur.kg || cur.time || 1, pct = Math.round(((v.kg || v.time) / ref) * 100);
     return `<div class="volbar ${cc(k)}"><i style="width:${pct}%"></i><span>${CATS[k] ? CATS[k][0] : 'Otros'}</span><b>${v.kg ? Math.round(v.kg).toLocaleString('es-ES') + ' kg' : fmtTime(v.time)}</b></div>`;
