@@ -147,24 +147,22 @@ nav a{font-size:13px;padding:10px 4px}
 .vchip.on{background:var(--b);color:#fff}
 
 /* v18 · tema Neón (oscuro, opcional en Personalizar) */
-:root[data-theme="neon"]{--d:#fff;--bg:#050a0a;--card:#0f1d1c;--inputbg:#0f1d1c;--border:#1f3a37;--m:#a9d9d3;--sf:#123330;--sf2:#164440;--bd:#1f3a37}
-:root[data-theme="neon"] body{background:linear-gradient(180deg,var(--bg1) 0,var(--bg) 260px,var(--bg))}
-:root[data-theme="neon"] .chip.pend,:root[data-theme="neon"] .card.pend{background:#2a1414;border-left-color:#7a3a3a}
-:root[data-theme="neon"] .chip.done,:root[data-theme="neon"] .card.done{background:#0f2a20;border-left-color:#1f7a55}
-:root[data-theme="neon"] button.ghost{background:var(--sf);color:var(--d)}
-:root[data-theme="neon"] .wk a{background:var(--sf);color:var(--d)}
-:root[data-theme="neon"] summary .tag{background:var(--sf);color:var(--d)}
-:root[data-theme="neon"] .cmt{background:#2a2610}
-:root[data-theme="neon"] .err{color:#f87171}
-:root[data-theme="neon"] .ok{color:#5eead4}
-:root[data-theme="neon"] .rpe span{background:hsl(var(--h,200) 35% 16%);color:var(--d)}
-:root[data-theme="neon"] .rpe input:checked+span{background:hsl(var(--h) 55% 26%);color:#fff;outline-color:hsl(var(--h) 60% 55%)}
-:root[data-theme="neon"] .k-sup{--bg:#0f2438}:root[data-theme="neon"] .k-sp{--bg:#2a1420}:root[data-theme="neon"] .k-ant{--bg:#2a2210}
-:root[data-theme="neon"] .k-pos{--bg:#0f2422}:root[data-theme="neon"] .k-fun{--bg:#1c1230}:root[data-theme="neon"] .k-mov{--bg:#1a2210}
-:root[data-theme="neon"] .k-car{--bg:#2a1610}:root[data-theme="neon"] .k-otro{--bg:#16201f}
-:root[data-theme="neon"] .av{color:var(--b)}
-:root[data-theme="neon"] .segName,:root[data-theme="neon"] .hero h2{text-shadow:0 0 10px rgba(45,212,191,.5)}
-:root[data-theme="neon"] .tag{box-shadow:0 0 8px rgba(45,212,191,.35)}
+:root[data-mode="dark"]{--d:#fff;--bg:#060d1f;--card:#0d1a36;--inputbg:#0d1a36;--border:#1c2c52;--m:#9fb4d8;--sf:#12224a;--sf2:#182b5a;--bd:#1c2c52}
+:root[data-mode="dark"] body{background:linear-gradient(180deg,var(--bg1) 0,var(--bg) 260px,var(--bg))}
+:root[data-mode="dark"] .chip.pend,:root[data-mode="dark"] .card.pend{background:#2a1414;border-left-color:#7a3a3a}
+:root[data-mode="dark"] .chip.done,:root[data-mode="dark"] .card.done{background:#0f2a20;border-left-color:#1f7a55}
+:root[data-mode="dark"] button.ghost{background:var(--sf);color:var(--d)}
+:root[data-mode="dark"] .wk a{background:var(--sf);color:var(--d)}
+:root[data-mode="dark"] summary .tag{background:var(--sf);color:var(--d)}
+:root[data-mode="dark"] .cmt{background:#2a2610}
+:root[data-mode="dark"] .err{color:#f87171}
+:root[data-mode="dark"] .ok{color:#5eead4}
+:root[data-mode="dark"] .rpe span{background:hsl(var(--h,200) 35% 16%);color:var(--d)}
+:root[data-mode="dark"] .rpe input:checked+span{background:hsl(var(--h) 55% 26%);color:#fff;outline-color:hsl(var(--h) 60% 55%)}
+:root[data-mode="dark"] .k-sup{--bg:#0f2438}:root[data-mode="dark"] .k-sp{--bg:#2a1420}:root[data-mode="dark"] .k-ant{--bg:#2a2210}
+:root[data-mode="dark"] .k-pos{--bg:#0f2422}:root[data-mode="dark"] .k-fun{--bg:#1c1230}:root[data-mode="dark"] .k-mov{--bg:#1a2210}
+:root[data-mode="dark"] .k-car{--bg:#2a1610}:root[data-mode="dark"] .k-otro{--bg:#16201f}
+:root[data-mode="dark"] .av{color:var(--b)}
 
 /* v19 · silueta de músculos pulsable */
 .silcard .row{align-items:center}
@@ -176,23 +174,23 @@ nav a{font-size:13px;padding:10px 4px}
 .bodysvg{width:100%;height:430px;display:block}
 .mgshape{cursor:pointer;stroke:transparent;stroke-width:18;stroke-linejoin:round;pointer-events:all;mix-blend-mode:multiply;transition:fill-opacity .15s}
 /* neón: elementos con colores fijos que no respetaban el tema */
-:root[data-theme="neon"] .volbar{background:var(--sf)}
-:root[data-theme="neon"] .tile[style*="background"],:root[data-theme="neon"] .rpe-dot{color:#1f2937}
-:root[data-theme="neon"] .tile[style*="background"] small{color:#4b5563}
-:root[data-theme="neon"] .toast{background:#0f766e;color:#fff}
+:root[data-mode="dark"] .volbar{background:var(--sf)}
+:root[data-mode="dark"] .tile[style*="background"],:root[data-mode="dark"] .rpe-dot{color:#1f2937}
+:root[data-mode="dark"] .tile[style*="background"] small{color:#4b5563}
+:root[data-mode="dark"] .toast{background:var(--b);color:#fff}
 
 /* v20 · fondo continuo (sin franja al final del degradado) */
 html{background:#f4f7fc}
-html[data-theme="neon"]{background:var(--bg)}
+html[data-mode="dark"]{background:var(--bg)}
 /* v20 · neón: fondos claros fijos que faltaban */
-:root[data-theme="neon"] .segtab,:root[data-theme="neon"] .seg2 label{background:var(--sf)}
-:root[data-theme="neon"] .btn.ghost{background:var(--sf);color:var(--d)}
-:root[data-theme="neon"] .tut2,:root[data-theme="neon"] details.tut{background:var(--sf)}
-:root[data-theme="neon"] .tut2[open]{background:var(--sf2)}
-:root[data-theme="neon"] .vchip:not(.on),:root[data-theme="neon"] .vbtn:not(.on),:root[data-theme="neon"] .emob:not(.on),:root[data-theme="neon"] .ibtn{background:var(--sf);color:var(--d)}
-:root[data-theme="neon"] .chart line{stroke:var(--bd)}
-:root[data-theme="neon"] .chart text{fill:var(--m)}
-:root[data-theme="neon"] .chart circle+text{fill:var(--d)}
+:root[data-mode="dark"] .segtab,:root[data-mode="dark"] .seg2 label{background:var(--sf)}
+:root[data-mode="dark"] .btn.ghost{background:var(--sf);color:var(--d)}
+:root[data-mode="dark"] .tut2,:root[data-mode="dark"] details.tut{background:var(--sf)}
+:root[data-mode="dark"] .tut2[open]{background:var(--sf2)}
+:root[data-mode="dark"] .vchip:not(.on),:root[data-mode="dark"] .vbtn:not(.on),:root[data-mode="dark"] .emob:not(.on),:root[data-mode="dark"] .ibtn{background:var(--sf);color:var(--d)}
+:root[data-mode="dark"] .chart line{stroke:var(--bd)}
+:root[data-mode="dark"] .chart text{fill:var(--m)}
+:root[data-mode="dark"] .chart circle+text{fill:var(--d)}
 
 /* v21 · base nativa en móvil (tap, selección, altura, modales) */
 html{-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%}
@@ -207,17 +205,17 @@ button,.btn,nav a,.tile,.clientTile,.catTile,.wp,.vchip,.vbtn,.ibtn,.emob,.swb,.
 button:active,.btn:active,nav a:active,.tile:active,.clientTile:active,.catTile:active,.wp:active,.vchip:active,.vbtn:active,.ibtn:active,.emob:active,.swb:active,.wk a:active,.segtabbtn:active{transform:scale(.97)}
 summary:active{opacity:.7}
 .mod{max-height:90dvh;overscroll-behavior:contain}
-:root[data-theme="neon"] nav{border-top-color:var(--border)}
+:root[data-mode="dark"] nav{border-top-color:var(--border)}
 
 /* v21 · tablet y escritorio: cabecera y barra inferior al ancho del contenido */
 @media (min-width:700px){
   nav{width:640px;max-width:100%;margin:0 auto;border:1px solid #dde;border-bottom:0;border-radius:18px 18px 0 0;box-shadow:0 -4px 20px #1e3a8a14}
-  :root[data-theme="neon"] nav{border-color:var(--border)}
+  :root[data-mode="dark"] nav{border-color:var(--border)}
   header#top{padding-left:max(16px,calc(50vw - 304px));padding-right:max(16px,calc(50vw - 304px))}
 }
 
 /* v22 · neón: enlaces de texto más claros */
-:root[data-theme="neon"] main a:not([class]),:root[data-theme="neon"] .linklike{color:var(--p3)}
+:root[data-mode="dark"] main a:not([class]),:root[data-mode="dark"] .linklike{color:var(--p3)}
 
 /* v23 · Inicio: cabecera compacta, tira semanal, carrusel y mensajes */
 main{padding-bottom:calc(112px + env(safe-area-inset-bottom))}
@@ -245,8 +243,8 @@ main{padding-bottom:calc(112px + env(safe-area-inset-bottom))}
 .dots{display:flex;justify-content:center;gap:6px;margin:4px 0 10px}.dots i{width:7px;height:7px;border-radius:50%;background:#0003;transition:width .2s,background .2s}.dots i.on{width:20px;background:var(--b)}
 a.back{display:inline-block;margin:6px 0}
 .setbtns{display:flex;gap:8px;margin-top:6px}.setbtns button{width:auto;flex:1}
-:root[data-theme="neon"] .dots i{background:#ffffff33}:root[data-theme="neon"] .dots i.on{background:var(--p3)}
-:root[data-theme="neon"] .dc.done .btn{background:var(--sf);color:var(--d)}
+:root[data-mode="dark"] .dots i{background:#ffffff33}:root[data-mode="dark"] .dots i.on{background:var(--p3)}
+:root[data-mode="dark"] .dc.done .btn{background:var(--sf);color:var(--d)}
 
 /* v23 · barra inferior flotante con iconos */
 nav{left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));padding:6px;gap:2px;justify-content:space-between;border:1px solid var(--border,#dde);border-radius:22px;box-shadow:0 8px 24px #0f172a24}
@@ -275,9 +273,6 @@ nav a svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;
 .dc.rest em{background:var(--b);color:#fff}
 
 /* v26 · tema Pro (azul marino oscuro) */
-:root[data-theme="neon"][data-pal="pro"]{--bg:#060d1f;--card:#0d1a36;--inputbg:#0d1a36;--border:#1c2c52;--m:#9fb4d8;--sf:#12224a;--sf2:#182b5a;--bd:#1c2c52}
-:root[data-pal="pro"] .segName,:root[data-pal="pro"] .hero h2{text-shadow:none}
-:root[data-pal="pro"] .tag{box-shadow:none}
 
 /* v26 · cabecera */
 header#top .hb{display:flex;flex-direction:column;min-width:0;flex:1;line-height:1.15}
@@ -292,7 +287,7 @@ header#top .hp svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-w
 .greet .sub{margin:8px 0 0;color:var(--m);font-size:15px}
 .greet .q{margin:0;padding:2px 0 2px 12px;border-left:3px solid var(--b);font:italic 17px/1.35 Georgia,serif;color:var(--d)}
 @media (min-width:420px){.greet{grid-template-columns:1.15fr 1fr;align-items:center}}
-:root[data-theme="neon"] .greet .nm{color:var(--p3)}
+:root[data-mode="dark"] .greet .nm{color:var(--p3)}
 .wbar{display:flex;align-items:center;gap:2px;background:var(--card);border:1px solid var(--border,#dde);border-radius:18px;padding:8px 4px;margin:8px 0}
 .wnav{width:26px;flex:none;text-align:center;font-size:24px;color:var(--m);text-decoration:none}.wnav.off{opacity:.25;pointer-events:none}
 .wdays{flex:1;display:flex;justify-content:space-between;min-width:0}
@@ -302,12 +297,12 @@ header#top .hp svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-w
 .wdi.sel .wc{background:var(--b);color:#fff;border-color:var(--b)}
 .wdi small{font-size:11px;color:var(--m)}.wdi.sel small{color:var(--b);font-weight:700}
 .wdi.td small::after{content:'';display:block;width:14px;height:3px;border-radius:2px;background:var(--b);margin:2px auto 0}
-:root[data-theme="neon"] .wdi.sel small{color:var(--p3)}
+:root[data-mode="dark"] .wdi.sel small{color:var(--p3)}
 @media (max-width:359px){.wdi .wc{width:28px;height:28px;font-size:13px}.wnav{width:20px}}
 .wk3{display:flex;align-items:center;gap:12px;padding:12px 14px;margin:8px 0}
 .ring{width:58px;height:58px;flex:none}.ring circle{fill:none;stroke-width:7}.ring .rbg{stroke:var(--border,#dde)}.ring .rfg{stroke:#22c55e;stroke-linecap:round}.ring text{fill:var(--d);font:700 15px system-ui}
 .wk3 .enc{margin-left:auto;font-weight:700;color:var(--b);text-align:right;font-size:14px}
-:root[data-theme="neon"] .wk3 .enc{color:var(--p3)}
+:root[data-mode="dark"] .wk3 .enc{color:var(--p3)}
 
 /* v26 · tarjeta de descanso con actividades */
 .dc.rest .rq{margin:6px 0 0;font-weight:600}
@@ -337,7 +332,23 @@ header#top .hp svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-w
 .vl .big{display:block;line-height:1.1}
 .dl{font-size:14px;margin-top:4px}
 @media (min-width:520px){.vb{display:flex;gap:16px;align-items:flex-end}.vl{flex:0 0 40%;margin-bottom:0}.vr{flex:1}}
-:root[data-theme="neon"] nav a.on{background:var(--sf2);color:var(--p3)}
+:root[data-mode="dark"] nav a.on{background:var(--sf2);color:var(--p3)}
 .row>a{text-decoration:none;font-weight:600;white-space:nowrap}
 @media (min-width:380px){.greet{grid-template-columns:1.15fr 1fr;align-items:center}}
+
+/* v28 · tarjeta de semana en filas de una línea */
+.wk3 .wkt{min-width:0;flex:1}
+.wk3 .wkt>div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wk3 .r1{font-size:17px}.wk3 .r2{color:var(--m);font-size:14px;margin-top:2px}.wk3 .r3{color:var(--b);font-weight:700;font-size:14px;margin-top:2px}
+:root[data-mode="dark"] .wk3 .r3{color:var(--p3)}
+
+/* v28 · actividades de descanso marcables */
+.rtiles>*{border:1px solid var(--border,#dde);border-radius:14px;padding:10px 4px;text-align:center;background:transparent;color:var(--d);box-shadow:none;margin:0;width:auto;font:inherit}
+.rtiles .rtl.done{background:#22a55b;border-color:#22a55b;color:#fff}
+.rtiles .rck{display:none;font-size:11px;font-weight:800;margin-top:2px}.rtiles .rtl.done .rck{display:block}
+.rtiles button.rtl{cursor:pointer}
+
+/* v28 · ventana de detalle centrada */
+.ov.center{align-items:center;padding:16px}
+.ov.center .mod{border-radius:20px;max-height:80dvh;overflow:auto;width:100%;max-width:440px}
 

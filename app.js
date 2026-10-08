@@ -10,8 +10,8 @@ const ok = async p => { const r = await p; if (r.error) throw r.error; return r.
 const fail = e => { console.error(e); html('<div class="card"><p>No se han podido cargar los datos. Comprueba tu conexión e inténtalo de nuevo.</p><button onclick="route()">Reintentar</button></div>'); };
 const toast = m => { const t = document.createElement('div'); t.className = 'toast'; t.textContent = m; document.body.append(t); setTimeout(() => t.remove(), 3500); };
 const aerr = e => ({ 'Invalid login credentials': 'Email o contraseña incorrectos.', 'User already registered': 'Ya existe una cuenta con ese email.' }[e.message] || (/password/i.test(e.message) ? 'La contraseña debe tener al menos 8 caracteres.' : 'No se ha podido completar la acción. Inténtalo de nuevo.'));
-function modal(h) {
-  const o = document.createElement('div'); o.className = 'ov';
+function modal(h, cls = '') {
+  const o = document.createElement('div'); o.className = ('ov ' + cls).trim();
   o.innerHTML = `<div class="card mod">${h}<button class="ghost" data-x>Cerrar</button></div>`;
   o.onclick = e => { if (e.target === o || e.target.dataset.x !== undefined) o.remove(); };
   document.body.append(o); return o;
@@ -55,7 +55,7 @@ const volumeCard = L => {
   const seg = ent.length ? `<div class="vseg">${ent.map(([g, v]) => `<i style="flex:${v};background:${VGROUP[g]}"></i>`).join('')}</div><div class="vleg">${ent.map(([g, v]) => `<i style="background:${VGROUP[g]}"></i><span class="n">${g}</span><span>${Math.round(v).toLocaleString('es-ES')} kg</span><span class="p">${Math.round(v / tot * 100)}%</span>`).join('')}</div>` : '';
   return `<div class="card vol"><div class="vh"><b>📦 Volumen esta semana</b><button type="button" class="vchev" data-voldet aria-label="Ver detalle del volumen">›</button></div><div class="vb"><div class="vl"><span class="big">${headline}</span>${cur.kg && deltaKg !== null ? `<span class="dl ${deltaKg < 0 ? 'neg' : 'pos'}">${deltaKg < 0 ? '↓' : '↑'} ${Math.abs(deltaKg)}% vs. semana anterior</span>` : ''}</div><div class="vr">${seg}</div></div></div>`;
 };
-document.addEventListener('click', e => { if (!e.target.closest('[data-voldet]')) return; modal(`<h3>Detalle del volumen</h3><p class="muted">Esta semana, por categoría (anterior / posterior)</p>${window.__volRows || '<p class="muted">Sin datos.</p>'}`); });
+document.addEventListener('click', e => { if (!e.target.closest('[data-voldet]')) return; modal(`<h3>Detalle del volumen</h3><p class="muted">Esta semana, por categoría (anterior / posterior)</p>${window.__volRows || '<p class="muted">Sin datos.</p>'}`, 'center'); });
 const stat = (ws, ses, wk) => {
   const w = wk || curWeek(ws); if (!w) return {};
   const days = [...w.workout_days].sort((a, b) => a.day_order - b.day_order), done = new Set(ses.map(s => s.workout_day_id));
@@ -84,14 +84,26 @@ function bodySvg(view, hasData, active, sil) {
   return `<svg viewBox="${s.vb[view]}" class="bodysvg" preserveAspectRatio="xMidYMid meet"><image href="${s.img}" width="${s.w}" height="${s.h}"/>${shapes}</svg>`;
 }
 const tagBadge = p => (p.client_color || p.client_emoji) ? `<span class="ctag" style="background:${CLIENT_TAGS[p.client_color] || '#cbd5e1'}">${p.client_emoji ? esc(p.client_emoji) : ''}</span>` : '';
-const THEMES = { azul: ['Azul', '#1e3a8a', '#2563eb', '#38bdf8', '#1d4ed8', '#e3edff'], verde: ['Verde', '#14532d', '#16a34a', '#4ade80', '#15803d', '#e4f5ea'], morado: ['Morado', '#4c1d95', '#7c3aed', '#a78bfa', '#6d28d9', '#eee8fd'], naranja: ['Naranja', '#9a3412', '#ea580c', '#fb923c', '#c2410c', '#fdeee0'], grafito: ['Grafito', '#111827', '#374151', '#6b7280', '#374151', '#eceff3'], rosa: ['Rosa', '#9d174d', '#db2777', '#f472b6', '#be185d', '#fde6f0'], neon: ['Neón', '#0a1414', '#0d9488', '#2dd4bf', '#0d9488', '#0a1414', true], pro: ['Pro', '#0b1a3a', '#1e40af', '#38bdf8', '#2563eb', '#060d1f', true, 'pro'] };
-const applyTheme = k => {
-  const t = THEMES[k] || THEMES.azul, r = document.documentElement.style;
+const THEMES = { azul: ['Azul', '#1e3a8a', '#2563eb', '#38bdf8', '#1d4ed8', '#e3edff'], verde: ['Verde', '#14532d', '#16a34a', '#4ade80', '#15803d', '#e4f5ea'], morado: ['Morado', '#4c1d95', '#7c3aed', '#a78bfa', '#6d28d9', '#eee8fd'], naranja: ['Naranja', '#9a3412', '#ea580c', '#fb923c', '#c2410c', '#fdeee0'], grafito: ['Grafito', '#111827', '#374151', '#6b7280', '#374151', '#eceff3'], rosa: ['Rosa', '#9d174d', '#db2777', '#f472b6', '#be185d', '#fde6f0'] };
+const PRO = {
+  azul: ['Azul', '#0b1a3a', '#1e40af', '#38bdf8', '#2563eb', '#060d1f', { bg: '#060d1f', card: '#0d1a36', bd: '#1c2c52', m: '#9fb4d8', sf: '#12224a', sf2: '#182b5a' }],
+  verde: ['Verde', '#0b2a1a', '#15803d', '#4ade80', '#16a34a', '#05110a', { bg: '#05110a', card: '#0b1f14', bd: '#1a3a28', m: '#9fd4b4', sf: '#10301f', sf2: '#16402a' }],
+  lila: ['Lila', '#1e1245', '#6d28d9', '#c4b5fd', '#7c3aed', '#0a0716', { bg: '#0a0716', card: '#140f2c', bd: '#2a2050', m: '#bfb0e8', sf: '#1e1640', sf2: '#2a1f58' }],
+  rojo: ['Rojo', '#3a0b0b', '#b91c1c', '#f87171', '#dc2626', '#120505', { bg: '#120505', card: '#1f0c0c', bd: '#3d1818', m: '#e0a9a9', sf: '#2c1010', sf2: '#3b1616' }],
+  rosa: ['Rosa', '#3b0a22', '#be185d', '#f472b6', '#db2777', '#13060d', { bg: '#13060d', card: '#210c17', bd: '#40182d', m: '#e0a9c3', sf: '#2f0f20', sf2: '#3f152b' }],
+  negro: ['Negro', '#000000', '#262626', '#e5e5e5', '#525252', '#000000', { bg: '#000000', card: '#111111', bd: '#262626', m: '#a3a3a3', sf: '#1a1a1a', sf2: '#262626' }],
+  amarillo: ['Amarillo', '#2e2305', '#a16207', '#fde047', '#ca8a04', '#100c02', { bg: '#100c02', card: '#1c1505', bd: '#3d300b', m: '#e0cf9a', sf: '#2a2008', sf2: '#392c0b' }]
+};
+const L2D = { azul: 'azul', verde: 'verde', morado: 'lila', naranja: 'amarillo', grafito: 'negro', rosa: 'rosa' }, D2L = { azul: 'azul', verde: 'verde', lila: 'morado', rojo: 'naranja', rosa: 'rosa', negro: 'grafito', amarillo: 'naranja' };
+const normTheme = k => k === 'neon' || k === 'pro' ? 'pro_azul' : (THEMES[k] || (k && k.startsWith('pro_') && PRO[k.slice(4)]) ? k : 'azul');
+const applyTheme = k0 => {
+  const k = normTheme(k0), dark = k.startsWith('pro_'), t = dark ? PRO[k.slice(4)] : THEMES[k], root = document.documentElement, r = root.style;
   ['--p1', '--p2', '--p3', '--b', '--bg1'].forEach((v, i) => r.setProperty(v, t[i + 1]));
   document.querySelector('meta[name=theme-color]').content = t[2];
-  document.documentElement.dataset.theme = t[6] ? 'neon' : '';
-  document.documentElement.dataset.pal = t[7] || '';
+  if (dark) { const v = t[6]; r.setProperty('--d', '#fff'); r.setProperty('--bg', v.bg); r.setProperty('--card', v.card); r.setProperty('--inputbg', v.card); r.setProperty('--border', v.bd); r.setProperty('--m', v.m); r.setProperty('--sf', v.sf); r.setProperty('--sf2', v.sf2); r.setProperty('--bd', v.bd); root.dataset.mode = 'dark'; }
+  else { ['--d', '--bg', '--card', '--inputbg', '--border', '--m', '--sf', '--sf2', '--bd'].forEach(v => r.removeProperty(v)); delete root.dataset.mode; }
 };
+const swatchesHtml = cur => { const dark = cur.startsWith('pro_'), reg = dark ? PRO : THEMES; return Object.entries(reg).map(([k, v]) => { const key = dark ? 'pro_' + k : k; return `<button class="swb ${cur === key ? 'on' : ''}" data-t="${key}" title="${v[0]}" style="background:linear-gradient(135deg,${v[1]},${v[3]})"></button>`; }).join(''); };
 function ytId(u) { const m = u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/); return m ? m[1] : null; }
 function driveId(u) { const m = u.match(/drive\.google\.com\/file\/d\/([\w-]+)/) || u.match(/[?&]id=([\w-]+)/); return m ? m[1] : null; }
 function infoBtn(desc) {
@@ -272,7 +284,7 @@ const TUTORIAL = `<div class="card tutcard"><div class="tuthead">📖 Aprende a 
 async function perfil() {
   const t = me.role === 'TRAINER';
   html(`<div class="hero pf"><div class="av">${esc(((me.nombre[0] || '') + (me.apellidos[0] || '')).toUpperCase())}</div><div><h2>${esc(me.nombre + ' ' + me.apellidos)}</h2><small>${esc(me.email)}</small></div></div>
-   <div class="card"><b>Personalizar</b><p class="muted">Elige el color de la app</p><div class="sw">${Object.entries(THEMES).map(([k, v]) => `<button class="swb ${(me.theme || 'azul') === k ? 'on' : ''}" data-t="${k}" title="${v[0]}" style="background:linear-gradient(135deg,${v[1]},${v[3]})"></button>`).join('')}</div></div>
+   <div class="card"><b>Personalizar</b><p class="muted">Elige el modo y el color de la app</p><div class="segtab"><button class="segtabbtn ${normTheme(me.theme).startsWith('pro_') ? '' : 'on'}" data-mode="light">Claro</button><button class="segtabbtn ${normTheme(me.theme).startsWith('pro_') ? 'on' : ''}" data-mode="dark">Pro</button></div><div class="sw" id="sw">${swatchesHtml(normTheme(me.theme))}</div></div>
    ${t ? '' : `<div class="card"><b>Silueta</b><p class="muted">Se usa en Ejercicios para ver tus músculos trabajados</p><div class="segtab"><button class="segtabbtn ${me.silueta === 'chica' ? '' : 'on'}" data-s="chico">Chico</button><button class="segtabbtn ${me.silueta === 'chica' ? 'on' : ''}" data-s="chica">Chica</button></div></div>`}
    ${t ? '' : TUTORIAL}
    ${t ? '' : `<div class="card"><b>Contacta con tu entrenador</b><p class="muted">Víctor Martínez</p><a class="btn" href="https://wa.me/34${PHONE}" target="_blank" rel="noopener">💬 Escribir por WhatsApp</a><a class="btn ghost" href="tel:+34${PHONE}">📞 Llamar · ${PHONE}</a></div>`}
@@ -284,9 +296,15 @@ async function perfil() {
       try { await ok(sb.from('profiles').update({ silueta: sv }).eq('id', me.id)); } catch (er) { console.error(er); toast('No se ha podido guardar la silueta.'); }
       return;
     }
-    const k = e.target.dataset.t; if (!k) return; me.theme = k; applyTheme(k);
-    document.querySelectorAll('.swb').forEach(b => b.classList.toggle('on', b.dataset.t === k));
-    try { await ok(sb.from('profiles').update({ theme: k }).eq('id', me.id)); } catch (er) { console.error(er); toast('No se ha podido guardar el color.'); }
+    const setTheme = async k => {
+      me.theme = k; applyTheme(k); const dk = k.startsWith('pro_');
+      document.querySelectorAll('[data-mode]').forEach(b => b.classList.toggle('on', (b.dataset.mode === 'dark') === dk));
+      document.getElementById('sw').innerHTML = swatchesHtml(k);
+      try { await ok(sb.from('profiles').update({ theme: k }).eq('id', me.id)); } catch (er) { console.error(er); toast('No se ha podido guardar el color.'); }
+    };
+    const md = e.target.closest('[data-mode]');
+    if (md) { const cur = normTheme(me.theme), isD = cur.startsWith('pro_'), want = md.dataset.mode === 'dark', col = isD ? cur.slice(4) : cur; if (want === isD) return; await setTheme(want ? 'pro_' + L2D[col] : D2L[col]); return; }
+    const k = e.target.dataset.t; if (!k) return; await setTheme(k);
   };
   document.getElementById('lo').onclick = () => sb.auth.signOut();
 }
@@ -607,7 +625,9 @@ const WDN = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'D
 const QUOTES = ['Disciplina hoy, libertad mañana.', 'Poco a poco, pero sin parar.', 'La constancia le gana al talento.', 'Un día más, una serie más.', 'Hazlo con ganas y con cabeza.', 'El progreso se construye en silencio.', 'Cada sesión suma.', 'Entrena fuerte, descansa mejor.', 'Lo que haces hoy cuenta mañana.', 'Sin prisa, pero sin pausa.', 'Hoy, mejor que ayer.', 'Tu constancia es tu mejor herramienta.'];
 const quote = () => QUOTES[(Math.floor(Date.now() / 864e5) + (me?.id ? me.id.charCodeAt(1) : 0)) % QUOTES.length];
 const ICON = { leaf: '<path d="M5 19c0-8 6-14 14-14 0 8-6 14-14 14zM5 19l7-7"/>', walk: '<circle cx="12" cy="5" r="2"/><path d="M12 8v6l-3 6M12 14l3 6M9 11l3-3 3 3"/>', stretch: '<circle cx="12" cy="5" r="2"/><path d="M12 8v6M5 9l7 2 7-2M12 14l-4 6M12 14l4 6"/>' };
-const restCard = (i, today) => `<div class="dc rest ${today ? 'today' : ''}" id="dc_r${i}"><div class="dct"><span>${WDN[i]}</span>${today ? '<em>HOY</em>' : ''}</div><h3>Descanso</h3><p class="rq">“${today ? 'Hoy' : 'Este día'} no hay entrenamiento.”</p><p class="rt">Camina, estira o haz movilidad. Descansar también entrena.</p><div class="rtiles"><div class="on"><svg viewBox="0 0 24 24">${ICON.leaf}</svg><b>Movilidad</b><small>10–15 min</small></div><div><svg viewBox="0 0 24 24">${ICON.walk}</svg><b>Camina</b><small>30–60 min</small></div><div><svg viewBox="0 0 24 24">${ICON.stretch}</svg><b>Estira</b><small>10–15 min</small></div></div></div>`;
+const RACT = [['movilidad', 'Movilidad', '10–15 min', 'leaf'], ['caminar', 'Camina', '30–60 min', 'walk'], ['estiramientos', 'Estira', '10–15 min', 'stretch']];
+const dAdd = (d, n) => { const x = new Date(d + 'T12:00:00'); x.setDate(x.getDate() + n); return x.toLocaleDateString('sv-SE'); };
+const restCard = (i, isToday, date, RC) => { const can = date <= today(); return `<div class="dc rest ${isToday ? 'today' : ''}" id="dc_r${i}"><div class="dct"><span>${WDN[i]}</span>${isToday ? '<em>HOY</em>' : ''}</div><h3>Descanso</h3><p class="rq">“${isToday ? 'Hoy' : 'Este día'} no hay entrenamiento.”</p><p class="rt">Los días de descanso aprovecha para hacer movilidad, salir a caminar y realizar estiramientos.${can ? ' Toca cada actividad para marcarla como hecha.' : ''}</p><div class="rtiles">${RACT.map(([key, lab, min, ic]) => { const dn = RC.has(date + '|' + key), tg = can ? 'button' : 'div'; return `<${tg} ${can ? 'type="button"' : ''} class="rtl ${dn ? 'done' : ''}" ${can ? `data-rest="${key}" data-date="${date}"` : ''}><svg viewBox="0 0 24 24">${ICON[ic]}</svg><b>${lab}</b><small>${min}</small><span class="rck">✓ Hecho</span></${tg}>`; }).join('')}</div></div>`; };
 function dayCard(d, sidMap, isToday) {
   const ex = [...(d.workout_exercises || [])].sort((a, b) => a.exercise_order - b.exercise_order), done = !!sidMap[d.id];
   const li = ex.slice(0, 3).map(x => `<li><span>${esc(x.exercises?.name || '')}</span><b>${x.sets}×${x.track_mode === 'time' ? fmtTime(x.duration_target) : x.reps_min + '–' + x.reps_max}</b></li>`).join('');
@@ -636,10 +656,12 @@ const C = {
   async home(h) {
     const hr = +new Date().toLocaleString('es-ES', { timeZone: tz, hour: 'numeric', hour12: false }), sal = hr < 13 ? 'Buenos días' : hr < 21 ? 'Buenas tardes' : 'Buenas noches';
     if (!me.trainer_id) return html(`<div class="hero"><small>${sal}</small><h2>${esc(me.nombre)} 👋</h2><p>Aún no tienes entrenador asignado. Abre el enlace de invitación que te ha enviado Víctor.</p></div>`);
-    const [ws, ses, vol] = await Promise.all([
+    const [ws, ses, vol, rc] = await Promise.all([
       ok(sb.from('workout_weeks').select('*,workout_days(id,day_name,title,day_order,workout_exercises(exercise_order,sets,reps_min,reps_max,track_mode,duration_target,exercises(name)))').eq('client_id', me.id)),
       ok(sb.from('workout_sessions').select('id,workout_day_id,completed_at,rpe').eq('client_id', me.id).eq('completed', true).order('completed_at', { ascending: false })),
-      ok(sb.from('set_logs').select('weight,reps,duration_seconds,workout_exercises(exercises(category,muscle_group)),workout_sessions!inner(client_id,completed,started_at)').eq('workout_sessions.client_id', me.id).eq('workout_sessions.completed', true))]);
+      ok(sb.from('set_logs').select('weight,reps,duration_seconds,workout_exercises(exercises(category,muscle_group)),workout_sessions!inner(client_id,completed,started_at)').eq('workout_sessions.client_id', me.id).eq('workout_sessions.completed', true)),
+      ok(sb.from('rest_checks').select('check_date,activity').eq('client_id', me.id)).catch(() => [])]);
+    const RC = new Set((rc || []).map(r => r.check_date + '|' + r.activity));
     const cw = curWeek(ws), wn = h && h[0] === 'sem' ? +h[1] : 0, sorted = [...ws].sort((a, b) => a.week_number - b.week_number), ad = adherence(ws, ses);
     const st = stat(ws, ses, wn ? ws.find(x => x.week_number === wn) : null), sid = Object.fromEntries(ses.map(s => [s.workout_day_id, s.id]));
     const i = sorted.findIndex(x => x.id === st.w?.id), pv = sorted[i - 1], nx = sorted[i + 1], pct = st.days?.length ? Math.round(st.done / st.days.length * 100) : 0;
@@ -648,12 +670,12 @@ const C = {
     const sub = !st.w ? '' : !isCur ? `Revisando la semana ${st.w.week_number}.` : !tdDay ? 'Descansar también es parte del plan.' : st.doneSet.has(tdDay.id) ? 'Hoy ya has cumplido. Ahora toca recuperar.' : motiv();
     const items = [];
     if (st.w) {
-      for (let k = 0; k < 7; k++) { const ds = st.days.filter(x => wdIdx(x.day_name) === k); if (ds.length) ds.forEach(d => items.push({ wd: k, key: d.id, html: dayCard(d, sid, tdi === k), done: st.doneSet.has(d.id) })); else items.push({ wd: k, key: 'r' + k, html: restCard(k, tdi === k), rest: true }); }
+      for (let k = 0; k < 7; k++) { const ds = st.days.filter(x => wdIdx(x.day_name) === k); if (ds.length) ds.forEach(d => items.push({ wd: k, key: d.id, html: dayCard(d, sid, tdi === k), done: st.doneSet.has(d.id) })); else items.push({ wd: k, key: 'r' + k, html: restCard(k, tdi === k, dAdd(st.w.week_start, k), RC), rest: true }); }
       st.days.filter(x => wdIdx(x.day_name) < 0).forEach(d => items.push({ wd: -1, key: d.id, html: dayCard(d, sid, false), done: st.doneSet.has(d.id) }));
     }
     const bar = !st.w ? '' : `<div class="wbar"><a class="wnav ${pv ? '' : 'off'}" href="#/sem/${(pv || st.w).week_number}">‹</a><div class="wdays">${WDL.map((l, k) => { const it = items.find(x => x.wd === k); return `<button type="button" class="wdi ${it.rest ? 'rest' : it.done ? 'dn' : 'has'} ${tdi === k ? 'td' : ''}" data-wd="${k}" data-goto="${it.key}"><span class="wc">${l}</span><small>${WABB[k]}</small></button>`; }).join('')}</div><a class="wnav ${nx ? '' : 'off'}" href="#/sem/${(nx || st.w).week_number}">›</a></div>`;
     const R = 26, CIR = 2 * Math.PI * R;
-    const wk3 = !st.w ? '' : `<div class="card wk3"><svg class="ring" viewBox="0 0 64 64"><circle cx="32" cy="32" r="${R}" class="rbg"/><circle cx="32" cy="32" r="${R}" class="rfg" stroke-dasharray="${(CIR * pct / 100).toFixed(1)} ${CIR.toFixed(1)}" transform="rotate(-90 32 32)"/><text x="32" y="37" text-anchor="middle">${pct}%</text></svg><div><b>Semana ${st.w.week_number}</b>${isCur ? ' <span class="tag">Actual</span>' : ''}<br><small class="muted">${st.done} de ${st.days.length} sesiones completadas</small></div><span class="enc">${pct >= 100 ? '¡Semana completada!' : pct >= 50 ? 'Sigue así' : 'Vamos a por ello'}${ad.streak >= 2 ? ' · 🔥' + ad.streak : ''}</span></div>`;
+    const wk3 = !st.w ? '' : `<div class="card wk3"><svg class="ring" viewBox="0 0 64 64"><circle cx="32" cy="32" r="${R}" class="rbg"/><circle cx="32" cy="32" r="${R}" class="rfg" stroke-dasharray="${(CIR * pct / 100).toFixed(1)} ${CIR.toFixed(1)}" transform="rotate(-90 32 32)"/><text x="32" y="37" text-anchor="middle">${pct}%</text></svg><div class="wkt"><div class="r1"><b>Semana ${st.w.week_number}</b>${isCur ? ' <span class="tag">Actual</span>' : ''}</div><div class="r2">${st.done} de ${st.days.length} sesiones completadas</div><div class="r3">${pct >= 100 ? '¡Semana completada!' : pct >= 50 ? 'Sigue así' : 'Vamos a por ello'}${ad.streak >= 2 ? ' · 🔥 ' + ad.streak : ''}</div></div></div>`;
     const pend = (st.days || []).filter(d => !st.doneSet.has(d.id)).sort((x, y) => { const p = wdIdx(x.day_name), q = wdIdx(y.day_name); return (p < 0 ? 9 : p) - (q < 0 ? 9 : q); });
     const rng = arr => arr.length ? (Math.min(...arr) === Math.max(...arr) ? `${Math.min(...arr)}` : `${Math.min(...arr)}–${Math.max(...arr)}`) : '';
     const ps = pend.map(d => { const ex = d.workout_exercises || [], sets = rng(ex.map(x => x.sets)), reps = rng(ex.filter(x => x.track_mode !== 'time').flatMap(x => [x.reps_min, x.reps_max])); return `<a class="ps" href="#/sesion/${d.id}"><span class="pd">${esc((d.day_name || '').slice(0, 3))}</span><div><b>${esc(d.title)}</b><small>${ex.length} ejercicio${ex.length === 1 ? '' : 's'}${sets ? ' · ' + sets + ' series' : ''}${reps ? ' · ' + reps + ' reps' : ''}</small></div></a>`; }).join('');
@@ -668,7 +690,16 @@ const C = {
       const mark = () => { let b = 0, bd = 1e9; cs.forEach((c, k) => { const dd = Math.abs(c.offsetLeft + c.offsetWidth / 2 - car.scrollLeft - car.clientWidth / 2); if (dd < bd) { bd = dd; b = k; } }); [...dots.children].forEach((o, k) => o.classList.toggle('on', k === b)); bt.forEach(x => x.classList.toggle('sel', items[b] && +x.dataset.wd === items[b].wd)); };
       car.addEventListener('scroll', mark, { passive: true }); mark();
     }
-    $app.onclick = e => { const b = e.target.closest('[data-goto]'); if (b) document.getElementById('dc_' + b.dataset.goto)?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); };
+    $app.onclick = async e => {
+      const rb = e.target.closest('[data-rest]');
+      if (rb) {
+        const on = !rb.classList.contains('done'), date = rb.dataset.date, act = rb.dataset.rest; rb.classList.toggle('done', on);
+        try { if (on) await ok(sb.from('rest_checks').insert({ client_id: me.id, check_date: date, activity: act })); else await ok(sb.from('rest_checks').delete().eq('client_id', me.id).eq('check_date', date).eq('activity', act)); }
+        catch (er) { console.error(er); rb.classList.toggle('done', !on); toast('No se ha podido guardar. ¿Está ejecutada la migración de descansos?'); }
+        return;
+      }
+      const b = e.target.closest('[data-goto]'); if (b) document.getElementById('dc_' + b.dataset.goto)?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    };
   },
   sem(h) { return C.home(h); },
   async hist() {
