@@ -147,13 +147,13 @@ nav a{font-size:13px;padding:10px 4px}
 .vchip.on{background:var(--b);color:#fff}
 
 /* v18 · tema Neón (oscuro, opcional en Personalizar) */
-:root[data-theme="neon"]{--d:#fff;--bg:#050a0a;--card:#0f1d1c;--inputbg:#0f1d1c;--border:#1f3a37;--m:#a9d9d3}
+:root[data-theme="neon"]{--d:#fff;--bg:#050a0a;--card:#0f1d1c;--inputbg:#0f1d1c;--border:#1f3a37;--m:#a9d9d3;--sf:#123330;--sf2:#164440;--bd:#1f3a37}
 :root[data-theme="neon"] body{background:linear-gradient(180deg,var(--bg1) 0,var(--bg) 260px,var(--bg))}
 :root[data-theme="neon"] .chip.pend,:root[data-theme="neon"] .card.pend{background:#2a1414;border-left-color:#7a3a3a}
 :root[data-theme="neon"] .chip.done,:root[data-theme="neon"] .card.done{background:#0f2a20;border-left-color:#1f7a55}
-:root[data-theme="neon"] button.ghost{background:#123330;color:var(--d)}
-:root[data-theme="neon"] .wk a{background:#123330;color:var(--d)}
-:root[data-theme="neon"] summary .tag{background:#123330;color:var(--d)}
+:root[data-theme="neon"] button.ghost{background:var(--sf);color:var(--d)}
+:root[data-theme="neon"] .wk a{background:var(--sf);color:var(--d)}
+:root[data-theme="neon"] summary .tag{background:var(--sf);color:var(--d)}
 :root[data-theme="neon"] .cmt{background:#2a2610}
 :root[data-theme="neon"] .err{color:#f87171}
 :root[data-theme="neon"] .ok{color:#5eead4}
@@ -176,7 +176,7 @@ nav a{font-size:13px;padding:10px 4px}
 .bodysvg{width:100%;height:430px;display:block}
 .mgshape{cursor:pointer;stroke:transparent;stroke-width:18;stroke-linejoin:round;pointer-events:all;mix-blend-mode:multiply;transition:fill-opacity .15s}
 /* neón: elementos con colores fijos que no respetaban el tema */
-:root[data-theme="neon"] .volbar{background:#14302d}
+:root[data-theme="neon"] .volbar{background:var(--sf)}
 :root[data-theme="neon"] .tile[style*="background"],:root[data-theme="neon"] .rpe-dot{color:#1f2937}
 :root[data-theme="neon"] .tile[style*="background"] small{color:#4b5563}
 :root[data-theme="neon"] .toast{background:#0f766e;color:#fff}
@@ -185,12 +185,12 @@ nav a{font-size:13px;padding:10px 4px}
 html{background:#f4f7fc}
 html[data-theme="neon"]{background:var(--bg)}
 /* v20 · neón: fondos claros fijos que faltaban */
-:root[data-theme="neon"] .segtab,:root[data-theme="neon"] .seg2 label{background:#123330}
-:root[data-theme="neon"] .btn.ghost{background:#123330;color:var(--d)}
-:root[data-theme="neon"] .tut2,:root[data-theme="neon"] details.tut{background:#123330}
-:root[data-theme="neon"] .tut2[open]{background:#164440}
-:root[data-theme="neon"] .vchip:not(.on),:root[data-theme="neon"] .vbtn:not(.on),:root[data-theme="neon"] .emob:not(.on),:root[data-theme="neon"] .ibtn{background:#123330;color:var(--d)}
-:root[data-theme="neon"] .chart line{stroke:#1f3a37}
+:root[data-theme="neon"] .segtab,:root[data-theme="neon"] .seg2 label{background:var(--sf)}
+:root[data-theme="neon"] .btn.ghost{background:var(--sf);color:var(--d)}
+:root[data-theme="neon"] .tut2,:root[data-theme="neon"] details.tut{background:var(--sf)}
+:root[data-theme="neon"] .tut2[open]{background:var(--sf2)}
+:root[data-theme="neon"] .vchip:not(.on),:root[data-theme="neon"] .vbtn:not(.on),:root[data-theme="neon"] .emob:not(.on),:root[data-theme="neon"] .ibtn{background:var(--sf);color:var(--d)}
+:root[data-theme="neon"] .chart line{stroke:var(--bd)}
 :root[data-theme="neon"] .chart text{fill:var(--m)}
 :root[data-theme="neon"] .chart circle+text{fill:var(--d)}
 
@@ -246,7 +246,7 @@ main{padding-bottom:calc(112px + env(safe-area-inset-bottom))}
 a.back{display:inline-block;margin:6px 0}
 .setbtns{display:flex;gap:8px;margin-top:6px}.setbtns button{width:auto;flex:1}
 :root[data-theme="neon"] .dots i{background:#ffffff33}:root[data-theme="neon"] .dots i.on{background:var(--p3)}
-:root[data-theme="neon"] .dc.done .btn{background:#123330;color:var(--d)}
+:root[data-theme="neon"] .dc.done .btn{background:var(--sf);color:var(--d)}
 
 /* v23 · barra inferior flotante con iconos */
 nav{left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));padding:6px;gap:2px;justify-content:space-between;border:1px solid var(--border,#dde);border-radius:22px;box-shadow:0 8px 24px #0f172a24}
@@ -273,4 +273,62 @@ nav a svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;
 .dc.rest{background:var(--card);color:var(--d);border:1px dashed var(--border,#cbd5e1);box-shadow:none;justify-content:flex-start}
 .dc.rest .rt{margin:8px 0;font-size:15px;line-height:1.5;opacity:.9}
 .dc.rest em{background:var(--b);color:#fff}
+
+/* v26 · tema Pro (azul marino oscuro) */
+:root[data-theme="neon"][data-pal="pro"]{--bg:#060d1f;--card:#0d1a36;--inputbg:#0d1a36;--border:#1c2c52;--m:#9fb4d8;--sf:#12224a;--sf2:#182b5a;--bd:#1c2c52}
+:root[data-pal="pro"] .segName,:root[data-pal="pro"] .hero h2{text-shadow:none}
+:root[data-pal="pro"] .tag{box-shadow:none}
+
+/* v26 · cabecera */
+header#top .hb{display:flex;flex-direction:column;min-width:0;flex:1;line-height:1.15}
+header#top .hb b{font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header#top .hb small{margin:0;font-size:10px;letter-spacing:.14em;text-transform:uppercase;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header#top .hp{margin-left:auto;flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;border:1px solid #ffffff59;color:#fff}
+header#top .hp svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+
+/* v26 · Inicio: saludo, barra semanal, anillo */
+.greet{display:grid;grid-template-columns:1fr;gap:10px;margin:12px 0 10px}
+.greet h2{font-size:27px;line-height:1.1;margin:0}.greet .nm{color:var(--b)}
+.greet .sub{margin:8px 0 0;color:var(--m);font-size:15px}
+.greet .q{margin:0;padding:2px 0 2px 12px;border-left:3px solid var(--b);font:italic 17px/1.35 Georgia,serif;color:var(--d)}
+@media (min-width:420px){.greet{grid-template-columns:1.15fr 1fr;align-items:center}}
+:root[data-theme="neon"] .greet .nm{color:var(--p3)}
+.wbar{display:flex;align-items:center;gap:2px;background:var(--card);border:1px solid var(--border,#dde);border-radius:18px;padding:8px 4px;margin:8px 0}
+.wnav{width:26px;flex:none;text-align:center;font-size:24px;color:var(--m);text-decoration:none}.wnav.off{opacity:.25;pointer-events:none}
+.wdays{flex:1;display:flex;justify-content:space-between;min-width:0}
+.wdi{flex:1;min-width:0;padding:2px 0;margin:0;background:none;color:var(--d);box-shadow:none;display:flex;flex-direction:column;align-items:center;gap:4px;border-radius:12px;border:0}
+.wdi .wc{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:14px;border:2px solid transparent}
+.wdi.rest .wc{color:var(--m);border-color:var(--border,#dde)}.wdi.has .wc{border-color:var(--b)}.wdi.dn .wc{background:#22a55b;color:#fff;border-color:#22a55b}
+.wdi.sel .wc{background:var(--b);color:#fff;border-color:var(--b)}
+.wdi small{font-size:11px;color:var(--m)}.wdi.sel small{color:var(--b);font-weight:700}
+.wdi.td small::after{content:'';display:block;width:14px;height:3px;border-radius:2px;background:var(--b);margin:2px auto 0}
+:root[data-theme="neon"] .wdi.sel small{color:var(--p3)}
+@media (max-width:359px){.wdi .wc{width:28px;height:28px;font-size:13px}.wnav{width:20px}}
+.wk3{display:flex;align-items:center;gap:12px;padding:12px 14px;margin:8px 0}
+.ring{width:58px;height:58px;flex:none}.ring circle{fill:none;stroke-width:7}.ring .rbg{stroke:var(--border,#dde)}.ring .rfg{stroke:#22c55e;stroke-linecap:round}.ring text{fill:var(--d);font:700 15px system-ui}
+.wk3 .enc{margin-left:auto;font-weight:700;color:var(--b);text-align:right;font-size:14px}
+:root[data-theme="neon"] .wk3 .enc{color:var(--p3)}
+
+/* v26 · tarjeta de descanso con actividades */
+.dc.rest .rq{margin:6px 0 0;font-weight:600}
+.dc.rest .rt{margin:6px 0 12px}
+.rtiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:auto}
+.rtiles div{border:1px solid var(--border,#dde);border-radius:14px;padding:10px 4px;text-align:center}
+.rtiles div.on{background:var(--b);border-color:var(--b);color:#fff}
+.rtiles svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;display:block;margin:0 auto 4px}
+.rtiles b{display:block;font-size:13px}.rtiles small{opacity:.8;font-size:11px}
+
+/* v26 · volumen semanal */
+.vol{padding:14px}.vh{display:flex;justify-content:space-between;align-items:center}
+.vchev{width:36px;height:36px;padding:0;margin:0;border-radius:50%;background:var(--sf,#eef1f6);color:var(--d);font-size:22px;line-height:1;box-shadow:none;border:0}
+.vb{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;margin-top:6px}.vl{flex:1 1 140px}.vr{flex:1 1 180px;min-width:0}
+.dl{display:block;font-weight:700;margin-top:2px}.dl.pos{color:#22a55b}.dl.neg{color:#ef4444}
+.vseg{display:flex;height:8px;border-radius:6px;overflow:hidden;gap:2px;margin-bottom:8px}.vseg i{display:block;min-width:4px}
+.vleg{display:grid;grid-template-columns:auto 1fr auto auto;gap:4px 8px;font-size:13px;align-items:center}
+.vleg i{width:9px;height:9px;border-radius:50%}.vleg .n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.vleg .p{color:var(--m);text-align:right}
+
+/* v26 · próximas sesiones */
+.ps{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--border,#dde);border-radius:16px;padding:10px;margin:8px 0;text-decoration:none;color:var(--d)}
+.ps .pd{width:54px;height:54px;flex:none;border-radius:12px;display:grid;place-items:center;background:linear-gradient(160deg,var(--p1),var(--p2));color:#fff;font-weight:800}
+.ps b{display:block}.ps small{color:var(--m)}
 

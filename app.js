@@ -29,6 +29,8 @@ const adherence = (ws, ses) => {
 };
 const fmtClock = s => { s = Math.max(0, Math.round(s)); const m = Math.floor(s / 60), sec = s % 60; return m ? `${m}:${String(sec).padStart(2, '0')}` : `${sec}s`; };
 const fmtTime = s => { s = Math.round(s); const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60; return h ? `${h}h ${String(m).padStart(2, '0')}m` : m ? `${m}m ${String(sec).padStart(2, '0')}s` : `${sec}s`; };
+const VGROUP = { 'Tren superior': '#3b82f6', 'Tren inferior': '#34d399', 'Core': '#8b5cf6', 'Otros': '#94a3b8' };
+const volGroup = (cat, mg) => mg === 'Core' ? 'Core' : /^sup_/.test(cat) ? 'Tren superior' : /^inf_/.test(cat) ? 'Tren inferior' : 'Otros';
 const volumeCard = L => {
   if (!L.length) return '';
   const buckets = {};
@@ -43,13 +45,17 @@ const volumeCard = L => {
   if (!cur.kg && !cur.time && !prev.kg && !prev.time) return '';
   const deltaKg = prev.kg ? Math.round((cur.kg - prev.kg) / prev.kg * 100) : null;
   const headline = cur.kg ? `${Math.round(cur.kg).toLocaleString('es-ES')} kg` : cur.time ? fmtTime(cur.time) : '0 kg';
-  const rows = Object.entries(cur.cats).sort((a, b) => (b[1].kg || b[1].time) - (a[1].kg || a[1].time)).map(([k, v]) => {
+  window.__volRows = Object.entries(cur.cats).sort((a, b) => (b[1].kg || b[1].time) - (a[1].kg || a[1].time)).map(([k, v]) => {
     const ref = cur.kg || cur.time || 1, pct = Math.round(((v.kg || v.time) / ref) * 100);
     return `<div class="volbar ${cc(k)}"><i style="width:${pct}%"></i><span>${CATS[k] ? CATS[k][0] : 'Otros'}</span><b>${v.kg ? Math.round(v.kg).toLocaleString('es-ES') + ' kg' : fmtTime(v.time)}</b></div>`;
   }).join('');
-  return `<div class="card"><b>📦 Volumen esta semana</b><br><span class="big">${headline}</span> ${cur.kg && deltaKg !== null ? `<span class="tag ${deltaKg < 0 ? 'neg' : ''}">${deltaKg > 0 ? '+' : ''}${deltaKg}% vs. semana anterior</span>` : ''}
-   ${rows}</div>`;
+  const grp = {};
+  L.forEach(l => { if (monday(dOf(l.workout_sessions.started_at)) !== curW || l.duration_seconds != null || l.weight == null || l.reps == null) return; const ex = l.workout_exercises.exercises, g = volGroup(ex.category || '', ex.muscle_group); grp[g] = (grp[g] || 0) + (+l.weight * l.reps); });
+  const ent = Object.entries(grp).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]), tot = ent.reduce((t, [, v]) => t + v, 0) || 1;
+  const seg = ent.length ? `<div class="vseg">${ent.map(([g, v]) => `<i style="flex:${v};background:${VGROUP[g]}"></i>`).join('')}</div><div class="vleg">${ent.map(([g, v]) => `<i style="background:${VGROUP[g]}"></i><span class="n">${g}</span><span>${Math.round(v).toLocaleString('es-ES')} kg</span><span class="p">${Math.round(v / tot * 100)}%</span>`).join('')}</div>` : '';
+  return `<div class="card vol"><div class="vh"><b>📦 Volumen esta semana</b><button type="button" class="vchev" data-voldet aria-label="Ver detalle del volumen">›</button></div><div class="vb"><div class="vl"><span class="big">${headline}</span>${cur.kg && deltaKg !== null ? `<span class="dl ${deltaKg < 0 ? 'neg' : 'pos'}">${deltaKg < 0 ? '↓' : '↑'} ${Math.abs(deltaKg)}% vs. semana anterior</span>` : ''}</div><div class="vr">${seg}</div></div></div>`;
 };
+document.addEventListener('click', e => { if (!e.target.closest('[data-voldet]')) return; modal(`<h3>Detalle del volumen</h3><p class="muted">Esta semana, por categoría (anterior / posterior)</p>${window.__volRows || '<p class="muted">Sin datos.</p>'}`); });
 const stat = (ws, ses, wk) => {
   const w = wk || curWeek(ws); if (!w) return {};
   const days = [...w.workout_days].sort((a, b) => a.day_order - b.day_order), done = new Set(ses.map(s => s.workout_day_id));
@@ -78,12 +84,13 @@ function bodySvg(view, hasData, active, sil) {
   return `<svg viewBox="${s.vb[view]}" class="bodysvg" preserveAspectRatio="xMidYMid meet"><image href="${s.img}" width="${s.w}" height="${s.h}"/>${shapes}</svg>`;
 }
 const tagBadge = p => (p.client_color || p.client_emoji) ? `<span class="ctag" style="background:${CLIENT_TAGS[p.client_color] || '#cbd5e1'}">${p.client_emoji ? esc(p.client_emoji) : ''}</span>` : '';
-const THEMES = { azul: ['Azul', '#1e3a8a', '#2563eb', '#38bdf8', '#1d4ed8', '#e3edff'], verde: ['Verde', '#14532d', '#16a34a', '#4ade80', '#15803d', '#e4f5ea'], morado: ['Morado', '#4c1d95', '#7c3aed', '#a78bfa', '#6d28d9', '#eee8fd'], naranja: ['Naranja', '#9a3412', '#ea580c', '#fb923c', '#c2410c', '#fdeee0'], grafito: ['Grafito', '#111827', '#374151', '#6b7280', '#374151', '#eceff3'], rosa: ['Rosa', '#9d174d', '#db2777', '#f472b6', '#be185d', '#fde6f0'], neon: ['Neón', '#0a1414', '#0d9488', '#2dd4bf', '#0d9488', '#0a1414', true] };
+const THEMES = { azul: ['Azul', '#1e3a8a', '#2563eb', '#38bdf8', '#1d4ed8', '#e3edff'], verde: ['Verde', '#14532d', '#16a34a', '#4ade80', '#15803d', '#e4f5ea'], morado: ['Morado', '#4c1d95', '#7c3aed', '#a78bfa', '#6d28d9', '#eee8fd'], naranja: ['Naranja', '#9a3412', '#ea580c', '#fb923c', '#c2410c', '#fdeee0'], grafito: ['Grafito', '#111827', '#374151', '#6b7280', '#374151', '#eceff3'], rosa: ['Rosa', '#9d174d', '#db2777', '#f472b6', '#be185d', '#fde6f0'], neon: ['Neón', '#0a1414', '#0d9488', '#2dd4bf', '#0d9488', '#0a1414', true], pro: ['Pro', '#0b1a3a', '#1e40af', '#38bdf8', '#2563eb', '#060d1f', true, 'pro'] };
 const applyTheme = k => {
   const t = THEMES[k] || THEMES.azul, r = document.documentElement.style;
   ['--p1', '--p2', '--p3', '--b', '--bg1'].forEach((v, i) => r.setProperty(v, t[i + 1]));
   document.querySelector('meta[name=theme-color]').content = t[2];
   document.documentElement.dataset.theme = t[6] ? 'neon' : '';
+  document.documentElement.dataset.pal = t[7] || '';
 };
 function ytId(u) { const m = u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/); return m ? m[1] : null; }
 function driveId(u) { const m = u.match(/drive\.google\.com\/file\/d\/([\w-]+)/) || u.match(/[?&]id=([\w-]+)/); return m ? m[1] : null; }
@@ -386,7 +393,7 @@ const T = {
       ok(sb.from('profiles').select('*').eq('id', id).single()),
       ok(sb.from('workout_weeks').select('*,workout_days(id,day_name,title,day_order)').eq('client_id', id).order('week_number', { ascending: false })),
       ok(sb.from('workout_sessions').select('id,workout_day_id,completed_at,rpe,observations,workout_days(day_name,title)').eq('client_id', id).eq('completed', true).order('completed_at', { ascending: false }).limit(200))]);
-    const vol = await ok(sb.from('set_logs').select('weight,reps,duration_seconds,workout_exercises(exercises(category)),workout_sessions!inner(client_id,completed,started_at)').eq('workout_sessions.client_id', id).eq('workout_sessions.completed', true));
+    const vol = await ok(sb.from('set_logs').select('weight,reps,duration_seconds,workout_exercises(exercises(category,muscle_group)),workout_sessions!inner(client_id,completed,started_at)').eq('workout_sessions.client_id', id).eq('workout_sessions.completed', true));
     const ad = adherence(ws, ses);
     const cw = curWeek(ws), sw = h[2] === 's' ? ws.find(x => x.week_number === +h[3]) : null, st = stat(ws, ses, sw), rp = ses.slice(0, 3).map(s => s.rpe).filter(Boolean), ra = rp.length ? rp.reduce((a, b) => a + b, 0) / rp.length : 0;
     const pct = st.days?.length ? Math.round(st.done / st.days.length * 100) : 0, ini = ((p.nombre[0] || '') + (p.apellidos[0] || '')).toUpperCase(), rc = v => `hsl(${130 - (v - 1) * 13} 55% 85%)`, cm = ses.filter(s => s.observations).slice(0, 3);
@@ -596,8 +603,11 @@ function weekStrip(days, doneSet, isCur) {
   const ti = isCur ? todayIdx() : -1;
   return `<div class="wstrip">${WDL.map((l, i) => { const d = days.find(x => wdIdx(x.day_name) === i), cls = `wd ${d ? (doneSet.has(d.id) ? 'dn' : 'has') : 'off'} ${i === ti ? 'td' : ''}`; return d ? `<button type="button" class="${cls}" data-goto="${d.id}" aria-label="${esc(d.day_name)}">${l}</button>` : `<span class="${cls}">${l}</span>`; }).join('')}</div>`;
 }
-const WDN = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
-const restCard = i => `<div class="dc rest today" id="dc_rest"><div class="dct"><span>${WDN[i]}</span><em>HOY</em></div><h3>Descanso</h3><p class="rt">Hoy no hay entreno. Camina, estira o haz movilidad. Descansar también entrena.</p></div>`;
+const WDN = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'], WABB = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+const QUOTES = ['Disciplina hoy, libertad mañana.', 'Poco a poco, pero sin parar.', 'La constancia le gana al talento.', 'Un día más, una serie más.', 'Hazlo con ganas y con cabeza.', 'El progreso se construye en silencio.', 'Cada sesión suma.', 'Entrena fuerte, descansa mejor.', 'Lo que haces hoy cuenta mañana.', 'Sin prisa, pero sin pausa.', 'Hoy, mejor que ayer.', 'Tu constancia es tu mejor herramienta.'];
+const quote = () => QUOTES[(Math.floor(Date.now() / 864e5) + (me?.id ? me.id.charCodeAt(1) : 0)) % QUOTES.length];
+const ICON = { leaf: '<path d="M5 19c0-8 6-14 14-14 0 8-6 14-14 14zM5 19l7-7"/>', walk: '<circle cx="12" cy="5" r="2"/><path d="M12 8v6l-3 6M12 14l3 6M9 11l3-3 3 3"/>', stretch: '<circle cx="12" cy="5" r="2"/><path d="M12 8v6M5 9l7 2 7-2M12 14l-4 6M12 14l4 6"/>' };
+const restCard = (i, today) => `<div class="dc rest ${today ? 'today' : ''}" id="dc_r${i}"><div class="dct"><span>${WDN[i]}</span>${today ? '<em>HOY</em>' : ''}</div><h3>Descanso</h3><p class="rq">“${today ? 'Hoy' : 'Este día'} no hay entrenamiento.”</p><p class="rt">Camina, estira o haz movilidad. Descansar también entrena.</p><div class="rtiles"><div class="on"><svg viewBox="0 0 24 24">${ICON.leaf}</svg><b>Movilidad</b><small>10–15 min</small></div><div><svg viewBox="0 0 24 24">${ICON.walk}</svg><b>Camina</b><small>30–60 min</small></div><div><svg viewBox="0 0 24 24">${ICON.stretch}</svg><b>Estira</b><small>10–15 min</small></div></div></div>`;
 function dayCard(d, sidMap, isToday) {
   const ex = [...(d.workout_exercises || [])].sort((a, b) => a.exercise_order - b.exercise_order), done = !!sidMap[d.id];
   const li = ex.slice(0, 3).map(x => `<li><span>${esc(x.exercises?.name || '')}</span><b>${x.sets}×${x.track_mode === 'time' ? fmtTime(x.duration_target) : x.reps_min + '–' + x.reps_max}</b></li>`).join('');
@@ -629,25 +639,33 @@ const C = {
     const [ws, ses, vol] = await Promise.all([
       ok(sb.from('workout_weeks').select('*,workout_days(id,day_name,title,day_order,workout_exercises(exercise_order,sets,reps_min,reps_max,track_mode,duration_target,exercises(name)))').eq('client_id', me.id)),
       ok(sb.from('workout_sessions').select('id,workout_day_id,completed_at,rpe').eq('client_id', me.id).eq('completed', true).order('completed_at', { ascending: false })),
-      ok(sb.from('set_logs').select('weight,reps,duration_seconds,workout_exercises(exercises(category)),workout_sessions!inner(client_id,completed,started_at)').eq('workout_sessions.client_id', me.id).eq('workout_sessions.completed', true))]);
+      ok(sb.from('set_logs').select('weight,reps,duration_seconds,workout_exercises(exercises(category,muscle_group)),workout_sessions!inner(client_id,completed,started_at)').eq('workout_sessions.client_id', me.id).eq('workout_sessions.completed', true))]);
     const cw = curWeek(ws), wn = h && h[0] === 'sem' ? +h[1] : 0, sorted = [...ws].sort((a, b) => a.week_number - b.week_number), ad = adherence(ws, ses);
     const st = stat(ws, ses, wn ? ws.find(x => x.week_number === wn) : null), sid = Object.fromEntries(ses.map(s => [s.workout_day_id, s.id]));
     const i = sorted.findIndex(x => x.id === st.w?.id), pv = sorted[i - 1], nx = sorted[i + 1], pct = st.days?.length ? Math.round(st.done / st.days.length * 100) : 0;
-    const isCur = st.w?.id === cw?.id, tdi = isCur ? todayIdx() : -1, tdDay = st.days?.find(d => wdIdx(d.day_name) === tdi), allDays = Object.fromEntries(ws.flatMap(w => w.workout_days.map(d => [d.id, { ...d, wk: w.week_number }])));
-    const mot = !isCur || !tdDay ? '' : st.doneSet.has(tdDay.id) ? '<div class="mot">🎉 Hoy ya has cumplido. Ahora toca recuperar.</div>' : `<div class="mot">💬 ${motiv()}</div>`;
-    const cardsArr = st.days?.map(d => dayCard(d, sid, tdDay?.id === d.id)) || []; let restAt = -1;
-    if (isCur && st.w && !tdDay) { const k = st.days.findIndex(d => wdIdx(d.day_name) > tdi); restAt = k < 0 ? cardsArr.length : k; cardsArr.splice(restAt, 0, restCard(tdi)); }
-    const cards = cardsArr.join('');
-    html(`<div class="hero cmp"><h2 class="g">${sal}, ${esc(me.nombre)} 👋</h2>${st.w ? `<div class="wk"><a class="${pv ? '' : 'off'}" href="#/sem/${(pv || st.w).week_number}">‹</a><b>Semana ${st.w.week_number}${isCur ? ' <span class="tag">actual</span>' : ''}</b><a class="${nx ? '' : 'off'}" href="#/sem/${(nx || st.w).week_number}">›</a></div>${weekStrip(st.days, st.doneSet, isCur)}<div class="bar"><i style="width:${pct}%"></i></div><p class="hs2">${st.done} de ${st.days.length} sesiones${ad.pct !== null ? ` · ✅ ${ad.pct}%` : ''}${ad.streak >= 2 ? ` · 🔥 ${ad.streak}` : ''}</p>${!isCur ? '<a class="back" href="#/">Volver a la semana actual</a>' : ''}` : '<p>Tu entrenador aún no ha programado tu semana.</p>'}</div>
-     ${mot}
-     ${st.w ? `<div class="car" id="car">${cards}</div><div class="dots" id="dots">${cardsArr.map((_, k) => `<i class="${k === 0 ? 'on' : ''}"></i>`).join('')}</div>${st.next ? '' : '<div class="card done">¡Semana completada! 💪</div>'}` : ''}
+    const isCur = st.w?.id === cw?.id, tdi = isCur ? todayIdx() : -1, tdDay = st.days?.find(d => wdIdx(d.day_name) === tdi);
+    const first = String(me.nombre || '').split(' ')[0];
+    const sub = !st.w ? '' : !isCur ? `Revisando la semana ${st.w.week_number}.` : !tdDay ? 'Descansar también es parte del plan.' : st.doneSet.has(tdDay.id) ? 'Hoy ya has cumplido. Ahora toca recuperar.' : motiv();
+    const items = [];
+    if (st.w) {
+      for (let k = 0; k < 7; k++) { const ds = st.days.filter(x => wdIdx(x.day_name) === k); if (ds.length) ds.forEach(d => items.push({ wd: k, key: d.id, html: dayCard(d, sid, tdi === k), done: st.doneSet.has(d.id) })); else items.push({ wd: k, key: 'r' + k, html: restCard(k, tdi === k), rest: true }); }
+      st.days.filter(x => wdIdx(x.day_name) < 0).forEach(d => items.push({ wd: -1, key: d.id, html: dayCard(d, sid, false), done: st.doneSet.has(d.id) }));
+    }
+    const bar = !st.w ? '' : `<div class="wbar"><a class="wnav ${pv ? '' : 'off'}" href="#/sem/${(pv || st.w).week_number}">‹</a><div class="wdays">${WDL.map((l, k) => { const it = items.find(x => x.wd === k); return `<button type="button" class="wdi ${it.rest ? 'rest' : it.done ? 'dn' : 'has'} ${tdi === k ? 'td' : ''}" data-wd="${k}" data-goto="${it.key}"><span class="wc">${l}</span><small>${WABB[k]}</small></button>`; }).join('')}</div><a class="wnav ${nx ? '' : 'off'}" href="#/sem/${(nx || st.w).week_number}">›</a></div>`;
+    const R = 26, CIR = 2 * Math.PI * R;
+    const wk3 = !st.w ? '' : `<div class="card wk3"><svg class="ring" viewBox="0 0 64 64"><circle cx="32" cy="32" r="${R}" class="rbg"/><circle cx="32" cy="32" r="${R}" class="rfg" stroke-dasharray="${(CIR * pct / 100).toFixed(1)} ${CIR.toFixed(1)}" transform="rotate(-90 32 32)"/><text x="32" y="37" text-anchor="middle">${pct}%</text></svg><div><b>Semana ${st.w.week_number}</b>${isCur ? ' <span class="tag">Actual</span>' : ''}<br><small class="muted">${st.done} de ${st.days.length} sesiones completadas</small></div><span class="enc">${pct >= 100 ? '¡Semana completada!' : pct >= 50 ? 'Sigue así' : 'Vamos a por ello'}${ad.streak >= 2 ? ' · 🔥' + ad.streak : ''}</span></div>`;
+    const pend = (st.days || []).filter(d => !st.doneSet.has(d.id)).sort((x, y) => { const p = wdIdx(x.day_name), q = wdIdx(y.day_name); return (p < 0 ? 9 : p) - (q < 0 ? 9 : q); });
+    const rng = arr => arr.length ? (Math.min(...arr) === Math.max(...arr) ? `${Math.min(...arr)}` : `${Math.min(...arr)}–${Math.max(...arr)}`) : '';
+    const ps = pend.map(d => { const ex = d.workout_exercises || [], sets = rng(ex.map(x => x.sets)), reps = rng(ex.filter(x => x.track_mode !== 'time').flatMap(x => [x.reps_min, x.reps_max])); return `<a class="ps" href="#/sesion/${d.id}"><span class="pd">${esc((d.day_name || '').slice(0, 3))}</span><div><b>${esc(d.title)}</b><small>${ex.length} ejercicio${ex.length === 1 ? '' : 's'}${sets ? ' · ' + sets + ' series' : ''}${reps ? ' · ' + reps + ' reps' : ''}</small></div></a>`; }).join('');
+    html(`<div class="greet"><div><h2>${sal},<br><span class="nm">${esc(first)}</span> 👋</h2>${sub ? `<p class="sub">${sub}</p>` : ''}</div><blockquote class="q">“${quote()}”</blockquote></div>
+     ${st.w ? `${bar}${wk3}<div class="car" id="car">${items.map(x => x.html).join('')}</div><div class="dots" id="dots">${items.map((_, k) => `<i class="${k === 0 ? 'on' : ''}"></i>`).join('')}</div>` : '<div class="card">Tu entrenador aún no ha programado tu semana.</div>'}
      ${volumeCard(vol)}
-     <h3>Historial de sesiones</h3>${ses.length ? ses.slice(0, 5).map(s => { const d = allDays[s.workout_day_id]; return `<a class="card link done" href="#/ver/${s.id}"><b>✓ ${esc(d?.day_name || '')}</b> — ${esc(d?.title || '')}<br><small class="muted">${fd(s.completed_at)}${s.rpe ? ' · RPE ' + s.rpe : ''}</small></a>`; }).join('') + '<a class="back" href="#/hist">Ver todo el historial →</a>' : '<p class="muted">Aún no has completado ninguna sesión.</p>'}`);
+     ${st.w ? `<div class="row"><h3>Tus próximas sesiones</h3><a href="#/hist">Ver historial ›</a></div>${ps || '<p class="muted">No tienes sesiones pendientes esta semana. ¡Buen trabajo!</p>'}` : ''}`);
     const car = document.getElementById('car'), dots = document.getElementById('dots');
     if (car) {
-      const cs = [...car.children], target = document.getElementById('dc_' + (tdDay ? tdDay.id : restAt >= 0 ? 'rest' : st.next?.id)) || cs[0];
+      const cs = [...car.children], bt = [...document.querySelectorAll('.wdi')], tk = (items.find(x => x.wd === tdi) || items.find(x => !x.done && !x.rest) || items[0])?.key, target = document.getElementById('dc_' + tk) || cs[0];
       if (target) car.scrollLeft = target.offsetLeft - (car.clientWidth - target.offsetWidth) / 2;
-      const mark = () => { let b = 0, bd = 1e9; cs.forEach((c, k) => { const dd = Math.abs(c.offsetLeft + c.offsetWidth / 2 - car.scrollLeft - car.clientWidth / 2); if (dd < bd) { bd = dd; b = k; } }); [...dots.children].forEach((o, k) => o.classList.toggle('on', k === b)); };
+      const mark = () => { let b = 0, bd = 1e9; cs.forEach((c, k) => { const dd = Math.abs(c.offsetLeft + c.offsetWidth / 2 - car.scrollLeft - car.clientWidth / 2); if (dd < bd) { bd = dd; b = k; } }); [...dots.children].forEach((o, k) => o.classList.toggle('on', k === b)); bt.forEach(x => x.classList.toggle('sel', items[b] && +x.dataset.wd === items[b].wd)); };
       car.addEventListener('scroll', mark, { passive: true }); mark();
     }
     $app.onclick = e => { const b = e.target.closest('[data-goto]'); if (b) document.getElementById('dc_' + b.dataset.goto)?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); };
