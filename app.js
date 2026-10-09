@@ -454,12 +454,9 @@ const T = {
       const a = e.target.dataset.a; if (!a) return;
       try {
         if (a === 'new') {
-          const t = today(), mt = monday(t), last = [...ws].sort((x, y) => x.week_start < y.week_start ? 1 : -1)[0], nx = last ? dAdd(monday(last.week_start), 7) : mt, def = nx < mt ? mt : nx;
-          const sd = x => new Date(x + 'T12:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }).replace('.', ''), lab = v => { const m0 = monday(v); return `Semana del lunes ${sd(m0)} al domingo ${sd(dAdd(m0, 6))}`; };
-          const m = modal(`<h3>Nueva semana</h3><p class="muted">Las semanas empiezan siempre en lunes. Elige cualquier día y se ajusta al lunes de esa semana.</p><input type="date" id="nwd" value="${def}"><p class="muted" id="nwl"><b>${lab(def)}</b></p><button type="button" class="btn" id="nwgo">Crear semana</button>`);
-          m.querySelector('#nwd').oninput = ev => { if (ev.target.value) m.querySelector('#nwl').innerHTML = `<b>${lab(ev.target.value)}</b>`; };
-          m.querySelector('#nwgo').onclick = async () => { const raw = m.querySelector('#nwd').value; if (!raw) return; const v = monday(raw); if (ws.some(x => monday(x.week_start) === v)) { toast('Ya existe una semana con esas fechas.'); return; } try { const w = await ok(sb.from('workout_weeks').insert({ client_id: id, week_number: (ws[0]?.week_number || 0) + 1, week_start: v }).select().single()); m.remove(); location.hash = '#/w/' + w.id; } catch (er) { console.error(er); toast('No se ha podido crear la semana.'); } };
-          return;
+          const mt = monday(today()), last = [...ws].sort((x, y) => x.week_start < y.week_start ? 1 : -1)[0], nx = last ? dAdd(monday(last.week_start), 7) : mt, v = nx < mt ? mt : nx;
+          const nw = await ok(sb.from('workout_weeks').insert({ client_id: id, week_number: (ws[0]?.week_number || 0) + 1, week_start: v }).select().single());
+          location.hash = '#/w/' + nw.id; return;
         }
         if (a === 'copy') { const nid = await ok(sb.rpc('copy_week', { p_week: ws[0].id })); location.hash = '#/w/' + nid; }
       } catch (er) { console.error(er); toast('No se ha podido completar la acción.'); }
