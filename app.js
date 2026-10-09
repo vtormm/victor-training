@@ -640,7 +640,7 @@ const restCard = (i, isToday, date, RC) => { const can = date <= today(); return
 function dayCard(d, sidMap, isToday, ph) {
   const ex = [...(d.workout_exercises || [])].sort((a, b) => a.exercise_order - b.exercise_order), done = !!sidMap[d.id];
   const li = ex.slice(0, 3).map(x => `<li><span>${esc(x.exercises?.name || '')}</span><b>${x.sets}×${x.track_mode === 'time' ? fmtTime(x.duration_target) : x.reps_min + '–' + x.reps_max}</b></li>`).join('');
-  return `<div class="dc ${done ? 'done' : ''} ${isToday ? 'today' : ''}" id="dc_${d.id}" ${ph && !done ? `data-ph="${ph}"` : ''}><div class="dct"><span>${esc(d.day_name)}</span>${isToday ? '<em>HOY</em>' : ''}${done ? '<em class="ok">✓ HECHA</em>' : ''}</div><h3>${esc(d.title)}</h3><ul>${li}</ul>${ex.length > 3 ? `<small>+${ex.length - 3} más</small>` : ''}<p class="dcs">${ex.length} ejercicio${ex.length === 1 ? '' : 's'}</p>${done ? `<a class="btn" href="#/ver/${sidMap[d.id]}">VER SESIÓN</a>` : `<a class="btn" href="#/sesion/${d.id}">EMPEZAR SESIÓN</a>`}</div>`;
+  return `<div class="dc ${done ? 'done' : ''} ${isToday ? 'today' : ''}" id="dc_${d.id}" ${ph ? `data-ph="${ph}"` : ''}><div class="dct"><span>${esc(d.day_name)}</span>${isToday ? '<em>HOY</em>' : ''}${done ? '<em class="ok">✓ HECHA</em>' : ''}</div><h3>${esc(d.title)}</h3><ul>${li}</ul>${ex.length > 3 ? `<small>+${ex.length - 3} más</small>` : ''}<p class="dcs">${ex.length} ejercicio${ex.length === 1 ? '' : 's'}</p>${done ? `<a class="btn" href="#/ver/${sidMap[d.id]}">VER SESIÓN</a>` : `<a class="btn" href="#/sesion/${d.id}">EMPEZAR SESIÓN</a>`}</div>`;
 }
 // ---------- CIERRE DE SESIÓN: animación y récords ----------
 async function finishScreen(rows, ex, sid) {

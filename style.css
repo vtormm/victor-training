@@ -366,3 +366,8 @@ header#top .hp svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-w
 .wf.tr{background:var(--b);color:#fff}.wf.tr small{color:#ffffffcc}
 .wf.td{border-color:var(--p3);box-shadow:0 0 0 1px var(--p3) inset}
 
+/* v34 · sesión completada: la foto se mantiene, más oscura */
+.dc.done.ph{background:linear-gradient(180deg,#000000b8 0,#000000e0 100%),var(--ph) center/cover no-repeat,var(--card);border:1px solid #ffffff1f}
+html .dc.done.ph .btn,:root[data-mode="dark"] .dc.done.ph .btn{background:#ffffff26;color:#fff}
+.dc.done.ph li{border-color:#ffffff33}
+
