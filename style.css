@@ -147,7 +147,7 @@ nav a{font-size:13px;padding:10px 4px}
 .vchip.on{background:var(--b);color:#fff}
 
 /* v18 · tema Neón (oscuro, opcional en Personalizar) */
-:root[data-mode="dark"]{--d:#fff;--bg:#060d1f;--card:#0d1a36;--inputbg:#0d1a36;--border:#1c2c52;--m:#9fb4d8;--sf:#12224a;--sf2:#182b5a;--bd:#1c2c52}
+:root[data-mode="dark"]{--d:#fff;--bg:#0a0a0a;--card:#141414;--inputbg:#141414;--border:#3a3a3a;--m:#a3a3a3;--sf:#1c1c1c;--sf2:#262626;--bd:#262626}
 :root[data-mode="dark"] body{background:linear-gradient(180deg,var(--bg1) 0,var(--bg) 260px,var(--bg))}
 :root[data-mode="dark"] .chip.pend,:root[data-mode="dark"] .card.pend{background:#2a1414;border-left-color:#7a3a3a}
 :root[data-mode="dark"] .chip.done,:root[data-mode="dark"] .card.done{background:#0f2a20;border-left-color:#1f7a55}
@@ -370,4 +370,18 @@ header#top .hp svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-w
 .dc.done.ph{background:linear-gradient(180deg,#000000b8 0,#000000e0 100%),var(--ph) center/cover no-repeat,var(--card);border:1px solid #ffffff1f}
 html .dc.done.ph .btn,:root[data-mode="dark"] .dc.done.ph .btn{background:#ffffff26;color:#fff}
 .dc.done.ph li{border-color:#ffffff33}
+
+/* v35 · Oscuro: fondo negro, cabecera y bordes del color elegido */
+:root[data-mode="dark"] .card:not(.pend):not(.done){border:1px solid var(--border);box-shadow:none}
+:root[data-mode="dark"] .dc:not(.done):not(.rest):not(.ph){background:linear-gradient(160deg,#1b1b1b,#0e0e0e);border:1px solid var(--border);box-shadow:none}
+:root[data-mode="dark"] .dc.ph,:root[data-mode="dark"] .dc.done.ph{border:1px solid var(--border)}
+:root[data-mode="dark"] .dc.rest,:root[data-mode="dark"] .dc.rest.ph{border-style:solid}
+:root[data-mode="dark"] .dc.today{box-shadow:inset 0 0 0 2px var(--p3)}
+:root[data-mode="dark"] .dc .btn{background:var(--b);color:#fff}
+:root[data-mode="dark"] .dc.done .btn{background:var(--sf);color:var(--d)}
+:root[data-mode="dark"] .dc.done.ph .btn{background:#ffffff26;color:#fff}
+:root[data-mode="dark"] .dc em{background:var(--b);color:#fff}
+:root[data-mode="dark"] .dc em.ok{background:#22a55b}
+:root[data-mode="dark"] input,:root[data-mode="dark"] select,:root[data-mode="dark"] textarea{border-color:var(--bd)}
+:root[data-mode="dark"] .ring .rbg{stroke:var(--bd)}
 

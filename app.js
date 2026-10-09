@@ -85,22 +85,24 @@ function bodySvg(view, hasData, active, sil) {
 }
 const tagBadge = p => (p.client_color || p.client_emoji) ? `<span class="ctag" style="background:${CLIENT_TAGS[p.client_color] || '#cbd5e1'}">${p.client_emoji ? esc(p.client_emoji) : ''}</span>` : '';
 const THEMES = { azul: ['Azul', '#1e3a8a', '#2563eb', '#38bdf8', '#1d4ed8', '#e3edff'], verde: ['Verde', '#14532d', '#16a34a', '#4ade80', '#15803d', '#e4f5ea'], morado: ['Morado', '#4c1d95', '#7c3aed', '#a78bfa', '#6d28d9', '#eee8fd'], naranja: ['Naranja', '#9a3412', '#ea580c', '#fb923c', '#c2410c', '#fdeee0'], grafito: ['Grafito', '#111827', '#374151', '#6b7280', '#374151', '#eceff3'], rosa: ['Rosa', '#9d174d', '#db2777', '#f472b6', '#be185d', '#fde6f0'] };
+const DK = { bg: '#0a0a0a', card: '#141414', m: '#a3a3a3', sf: '#1c1c1c', sf2: '#262626', bd: '#262626' };
 const PRO = {
-  azul: ['Azul', '#0b1a3a', '#1e40af', '#38bdf8', '#2563eb', '#060d1f', { bg: '#060d1f', card: '#0d1a36', bd: '#1c2c52', m: '#9fb4d8', sf: '#12224a', sf2: '#182b5a' }],
-  verde: ['Verde', '#0b2a1a', '#15803d', '#4ade80', '#16a34a', '#05110a', { bg: '#05110a', card: '#0b1f14', bd: '#1a3a28', m: '#9fd4b4', sf: '#10301f', sf2: '#16402a' }],
-  lila: ['Lila', '#1e1245', '#6d28d9', '#c4b5fd', '#7c3aed', '#0a0716', { bg: '#0a0716', card: '#140f2c', bd: '#2a2050', m: '#bfb0e8', sf: '#1e1640', sf2: '#2a1f58' }],
-  rojo: ['Rojo', '#3a0b0b', '#b91c1c', '#f87171', '#dc2626', '#120505', { bg: '#120505', card: '#1f0c0c', bd: '#3d1818', m: '#e0a9a9', sf: '#2c1010', sf2: '#3b1616' }],
-  rosa: ['Rosa', '#3b0a22', '#be185d', '#f472b6', '#db2777', '#13060d', { bg: '#13060d', card: '#210c17', bd: '#40182d', m: '#e0a9c3', sf: '#2f0f20', sf2: '#3f152b' }],
-  negro: ['Negro', '#000000', '#262626', '#e5e5e5', '#525252', '#000000', { bg: '#000000', card: '#111111', bd: '#262626', m: '#a3a3a3', sf: '#1a1a1a', sf2: '#262626' }],
-  amarillo: ['Amarillo', '#2e2305', '#a16207', '#fde047', '#ca8a04', '#100c02', { bg: '#100c02', card: '#1c1505', bd: '#3d300b', m: '#e0cf9a', sf: '#2a2008', sf2: '#392c0b' }]
+  azul: ['Azul', '#0b1a3a', '#1e40af', '#38bdf8', '#2563eb', '#0a0a0a'],
+  verde: ['Verde', '#0b2a1a', '#15803d', '#4ade80', '#16a34a', '#0a0a0a'],
+  lila: ['Lila', '#1e1245', '#6d28d9', '#c4b5fd', '#7c3aed', '#0a0a0a'],
+  rojo: ['Rojo', '#3a0b0b', '#b91c1c', '#f87171', '#dc2626', '#0a0a0a'],
+  rosa: ['Rosa', '#3b0a22', '#be185d', '#f472b6', '#db2777', '#0a0a0a'],
+  negro: ['Plata', '#1c1c1c', '#3f3f46', '#d4d4d8', '#71717a', '#0a0a0a'],
+  amarillo: ['Amarillo', '#2e2305', '#a16207', '#fde047', '#ca8a04', '#0a0a0a']
 };
+const rgba = (h, al) => { const n = parseInt(h.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${al})`; };
 const L2D = { azul: 'azul', verde: 'verde', morado: 'lila', naranja: 'amarillo', grafito: 'negro', rosa: 'rosa' }, D2L = { azul: 'azul', verde: 'verde', lila: 'morado', rojo: 'naranja', rosa: 'rosa', negro: 'grafito', amarillo: 'naranja' };
 const normTheme = k => k === 'neon' || k === 'pro' ? 'pro_azul' : (THEMES[k] || (k && k.startsWith('pro_') && PRO[k.slice(4)]) ? k : 'azul');
 const applyTheme = k0 => {
   const k = normTheme(k0), dark = k.startsWith('pro_'), t = dark ? PRO[k.slice(4)] : THEMES[k], root = document.documentElement, r = root.style;
   ['--p1', '--p2', '--p3', '--b', '--bg1'].forEach((v, i) => r.setProperty(v, t[i + 1]));
   document.querySelector('meta[name=theme-color]').content = t[2];
-  if (dark) { const v = t[6]; r.setProperty('--d', '#fff'); r.setProperty('--bg', v.bg); r.setProperty('--card', v.card); r.setProperty('--inputbg', v.card); r.setProperty('--border', v.bd); r.setProperty('--m', v.m); r.setProperty('--sf', v.sf); r.setProperty('--sf2', v.sf2); r.setProperty('--bd', v.bd); root.dataset.mode = 'dark'; }
+  if (dark) { const v = DK; r.setProperty('--d', '#fff'); r.setProperty('--bg', v.bg); r.setProperty('--card', v.card); r.setProperty('--inputbg', v.card); r.setProperty('--border', rgba(t[3], .55)); r.setProperty('--m', v.m); r.setProperty('--sf', v.sf); r.setProperty('--sf2', v.sf2); r.setProperty('--bd', v.bd); root.dataset.mode = 'dark'; }
   else { ['--d', '--bg', '--card', '--inputbg', '--border', '--m', '--sf', '--sf2', '--bd'].forEach(v => r.removeProperty(v)); delete root.dataset.mode; }
 };
 const swatchesHtml = cur => { const dark = cur.startsWith('pro_'), reg = dark ? PRO : THEMES; return Object.entries(reg).map(([k, v]) => { const key = dark ? 'pro_' + k : k; return `<button class="swb ${cur === key ? 'on' : ''}" data-t="${key}" title="${v[0]}" style="background:linear-gradient(135deg,${v[1]},${v[3]})"></button>`; }).join(''); };
