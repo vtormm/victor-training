@@ -352,3 +352,17 @@ header#top .hp svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-w
 .ov.center{align-items:center;padding:16px}
 .ov.center .mod{border-radius:20px;max-height:80dvh;overflow:auto;width:100%;max-width:440px}
 
+/* v29 · fotos opcionales en las tarjetas (entreno y descanso) */
+.dc.ph{color:#fff;background:linear-gradient(180deg,#00000040 0,#000000b3 75%),var(--ph) center/cover no-repeat,linear-gradient(160deg,var(--p1),var(--p2));border:1px solid #ffffff2e}
+.dc.ph .dct,.dc.ph h3,.dc.ph li,.dc.ph small,.dc.ph p{color:#fff}
+.dc.ph li{border-color:#ffffff40}
+.dc.rest.ph .rtiles>*{color:#fff;border-color:#ffffff59;background:#00000045}
+.dc.rest.ph .rtl.done{background:#22a55b;border-color:#22a55b}
+
+/* v30 · semana completa en la vista del entrenador */
+.wfull{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin:6px 0 12px}
+.wf{background:var(--sf,#eef2f7);border-radius:12px;padding:6px 0;text-align:center;line-height:1.2;border:1px solid transparent}
+.wf small{display:block;color:var(--m);font-size:11px;font-weight:600}.wf b{font-size:16px}
+.wf.tr{background:var(--b);color:#fff}.wf.tr small{color:#ffffffcc}
+.wf.td{border-color:var(--p3);box-shadow:0 0 0 1px var(--p3) inset}
+
