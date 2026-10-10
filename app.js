@@ -636,13 +636,34 @@ const WDN = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'D
 const QUOTES = ['Disciplina hoy, libertad mañana.', 'Poco a poco, pero sin parar.', 'La constancia le gana al talento.', 'Un día más, una serie más.', 'Hazlo con ganas y con cabeza.', 'El progreso se construye en silencio.', 'Cada sesión suma.', 'Entrena fuerte, descansa mejor.', 'Lo que haces hoy cuenta mañana.', 'Sin prisa, pero sin pausa.', 'Hoy, mejor que ayer.', 'Tu constancia es tu mejor herramienta.'];
 const quote = () => QUOTES[(Math.floor(Date.now() / 864e5) + (me?.id ? me.id.charCodeAt(1) : 0)) % QUOTES.length];
 const ICON = { leaf: '<path d="M5 19c0-8 6-14 14-14 0 8-6 14-14 14zM5 19l7-7"/>', walk: '<circle cx="12" cy="5" r="2"/><path d="M12 8v6l-3 6M12 14l3 6M9 11l3-3 3 3"/>', stretch: '<circle cx="12" cy="5" r="2"/><path d="M12 8v6M5 9l7 2 7-2M12 14l-4 6M12 14l4 6"/>' };
+// ---------- FOTOS DE LAS TARJETAS (aleatorias pero estables por semana) ----------
+const imgOk = u => new Promise(res => { const im = new Image(); im.onload = () => res(true); im.onerror = () => res(false); im.src = u; });
+const findPh = async base => { for (const e of ['jpg', 'png']) if (await imgOk(base + '.' + e)) return base + '.' + e; return null; };
+const hash = s => { let h = 2166136261; for (const ch of String(s)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; };
+const rng = seed => () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+const shuffled = (arr, seed) => { const x = [...arr], r = rng(hash(seed)); for (let i = x.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [x[i], x[j]] = [x[j], x[i]]; } return x; };
+let PHP = null;
+const loadPhotos = () => PHP || (PHP = (async () => {
+  try { const c = JSON.parse(localStorage.getItem('vm_ph') || 'null'); if (c && Date.now() - c.t < 300000) return c; } catch (e) { /* sin caché */ }
+  const E = (await Promise.all(Array.from({ length: 12 }, (_, i) => findPh('foto-entreno-' + (i + 1))))).filter(Boolean);
+  const R = (await Promise.all(['foto-descanso', ...Array.from({ length: 7 }, (_, i) => 'foto-descanso-' + (i + 2))].map(findPh))).filter(Boolean);
+  const o = { t: Date.now(), e: E, r: R }; try { localStorage.setItem('vm_ph', JSON.stringify(o)); } catch (e) { /* sin caché */ } return o;
+})());
+async function applyPhotos(w) {
+  try {
+    const P = await loadPhotos(); if (!w) return;
+    const order = shuffled(P.e, me.id + '|' + w.week_start), setPh = (c, u) => { c.style.setProperty('--ph', `url('${u}')`); c.classList.add('ph'); };
+    document.querySelectorAll('.dc[data-pi]').forEach(c => { if (order.length) setPh(c, order[+c.dataset.pi % order.length]); });
+    document.querySelectorAll('.dc[data-pr]').forEach(c => { const off = Math.round((new Date(c.dataset.pr + 'T12:00:00') - new Date(w.week_start + 'T12:00:00')) / 864e5); if (P.r.length) setPh(c, P.r[(hash(me.id + '|' + w.week_start) + off) % P.r.length]); });
+  } catch (e) { console.error(e); }
+}
 const RACT = [['movilidad', 'Movilidad', '10–15 min', 'leaf'], ['caminar', 'Camina', '30–60 min', 'walk'], ['estiramientos', 'Estira', '10–15 min', 'stretch']];
 const dAdd = (d, n) => { const x = new Date(d + 'T12:00:00'); x.setDate(x.getDate() + n); return x.toLocaleDateString('sv-SE'); };
-const restCard = (i, isToday, date, RC) => { const can = date <= today(); return `<div class="dc rest ${isToday ? 'today' : ''}" id="dc_r${i}" data-ph="foto-descanso"><div class="dct"><span>${WDN[i]}</span>${isToday ? '<em>HOY</em>' : ''}</div><h3>Descanso</h3><p class="rq">“${isToday ? 'Hoy' : 'Este día'} no hay entrenamiento.”</p><p class="rt">Los días de descanso aprovecha para hacer movilidad, salir a caminar y realizar estiramientos.${can ? ' Toca cada actividad para marcarla como hecha.' : ''}</p><div class="rtiles">${RACT.map(([key, lab, min, ic]) => { const dn = RC.has(date + '|' + key), tg = can ? 'button' : 'div'; return `<${tg} ${can ? 'type="button"' : ''} class="rtl ${dn ? 'done' : ''}" ${can ? `data-rest="${key}" data-date="${date}"` : ''}><svg viewBox="0 0 24 24">${ICON[ic]}</svg><b>${lab}</b><small>${min}</small><span class="rck">✓ Hecho</span></${tg}>`; }).join('')}</div></div>`; };
-function dayCard(d, sidMap, isToday, ph) {
+const restCard = (i, isToday, date, RC) => { const can = date <= today(); return `<div class="dc rest ${isToday ? 'today' : ''}" id="dc_r${i}" data-pr="${date}"><div class="dct"><span>${WDN[i]}</span>${isToday ? '<em>HOY</em>' : ''}</div><h3>Descanso</h3><p class="rq">“${isToday ? 'Hoy' : 'Este día'} no hay entrenamiento.”</p><p class="rt">Los días de descanso aprovecha para hacer movilidad, salir a caminar y realizar estiramientos.${can ? ' Toca cada actividad para marcarla como hecha.' : ''}</p><div class="rtiles">${RACT.map(([key, lab, min, ic]) => { const dn = RC.has(date + '|' + key), tg = can ? 'button' : 'div'; return `<${tg} ${can ? 'type="button"' : ''} class="rtl ${dn ? 'done' : ''}" ${can ? `data-rest="${key}" data-date="${date}"` : ''}><svg viewBox="0 0 24 24">${ICON[ic]}</svg><b>${lab}</b><small>${min}</small><span class="rck">✓ Hecho</span></${tg}>`; }).join('')}</div></div>`; };
+function dayCard(d, sidMap, isToday, pos) {
   const ex = [...(d.workout_exercises || [])].sort((a, b) => a.exercise_order - b.exercise_order), done = !!sidMap[d.id];
   const li = ex.slice(0, 3).map(x => `<li><span>${esc(x.exercises?.name || '')}</span><b>${x.sets}×${x.track_mode === 'time' ? fmtTime(x.duration_target) : x.reps_min + '–' + x.reps_max}</b></li>`).join('');
-  return `<div class="dc ${done ? 'done' : ''} ${isToday ? 'today' : ''}" id="dc_${d.id}" ${ph ? `data-ph="${ph}"` : ''}><div class="dct"><span>${esc(d.day_name)}</span>${isToday ? '<em>HOY</em>' : ''}${done ? '<em class="ok">✓ HECHA</em>' : ''}</div><h3>${esc(d.title)}</h3><ul>${li}</ul>${ex.length > 3 ? `<small>+${ex.length - 3} más</small>` : ''}<p class="dcs">${ex.length} ejercicio${ex.length === 1 ? '' : 's'}</p>${done ? `<a class="btn" href="#/ver/${sidMap[d.id]}">VER SESIÓN</a>` : `<a class="btn" href="#/sesion/${d.id}">EMPEZAR SESIÓN</a>`}</div>`;
+  return `<div class="dc ${done ? 'done' : ''} ${isToday ? 'today' : ''}" id="dc_${d.id}" ${pos >= 0 ? `data-pi="${pos}"` : ''}><div class="dct"><span>${esc(d.day_name)}</span>${isToday ? '<em>HOY</em>' : ''}${done ? '<em class="ok">✓ HECHA</em>' : ''}</div><h3>${esc(d.title)}</h3><ul>${li}</ul>${ex.length > 3 ? `<small>+${ex.length - 3} más</small>` : ''}<p class="dcs">${ex.length} ejercicio${ex.length === 1 ? '' : 's'}</p>${done ? `<a class="btn" href="#/ver/${sidMap[d.id]}">VER SESIÓN</a>` : `<a class="btn" href="#/sesion/${d.id}">EMPEZAR SESIÓN</a>`}</div>`;
 }
 // ---------- CIERRE DE SESIÓN: animación y récords ----------
 async function finishScreen(rows, ex, sid) {
@@ -683,7 +704,7 @@ const C = {
     const sub = !st.w ? '' : (!isCur || tdi < 0) ? `Revisando la semana ${st.w.week_number}.` : !tdDay ? 'Descansar también es parte del plan.' : st.doneSet.has(tdDay.id) ? 'Hoy ya has cumplido. Ahora toca recuperar.' : motiv();
     const items = [];
     if (st.w) {
-      for (const k of order) { const ds = st.days.filter(x => wdIdx(x.day_name) === k); if (ds.length) ds.forEach(d => items.push({ wd: k, key: d.id, html: dayCard(d, sid, tdi === k, 'foto-entreno-' + (st.days.findIndex(x => x.id === d.id) % 4 + 1)), done: st.doneSet.has(d.id) })); else items.push({ wd: k, key: 'r' + k, html: restCard(k, tdi === k, wdate(k), RC), rest: true }); }
+      for (const k of order) { const ds = st.days.filter(x => wdIdx(x.day_name) === k); if (ds.length) ds.forEach(d => items.push({ wd: k, key: d.id, html: dayCard(d, sid, tdi === k, st.days.findIndex(x => x.id === d.id)), done: st.doneSet.has(d.id) })); else items.push({ wd: k, key: 'r' + k, html: restCard(k, tdi === k, wdate(k), RC), rest: true }); }
       st.days.filter(x => wdIdx(x.day_name) < 0).forEach(d => items.push({ wd: -1, key: d.id, html: dayCard(d, sid, false), done: st.doneSet.has(d.id) }));
     }
     const bar = !st.w ? '' : `<div class="wbar"><a class="wnav ${pv ? '' : 'off'}" href="#/sem/${(pv || st.w).week_number}">‹</a><div class="wdays">${order.map(k => { const l = WDL[k], it = items.find(x => x.wd === k); return `<button type="button" class="wdi ${it.rest ? 'rest' : it.done ? 'dn' : 'has'} ${tdi === k ? 'td' : ''}" data-wd="${k}" data-goto="${it.key}"><span class="wc">${l}</span><small>${WABB[k]}</small></button>`; }).join('')}</div><a class="wnav ${nx ? '' : 'off'}" href="#/sem/${(nx || st.w).week_number}">›</a></div>`;
@@ -696,7 +717,7 @@ const C = {
      ${st.w ? `${bar}${wk3}<div class="car" id="car">${items.map(x => x.html).join('')}</div><div class="dots" id="dots">${items.map((_, k) => `<i class="${k === 0 ? 'on' : ''}"></i>`).join('')}</div>` : '<div class="card">Tu entrenador aún no ha programado tu semana.</div>'}
      ${volumeCard(vol)}
      ${st.w ? `<div class="row"><h3>Tus próximas sesiones</h3><a href="#/hist">Ver historial ›</a></div>${ps || '<p class="muted">No tienes sesiones pendientes esta semana. ¡Buen trabajo!</p>'}` : ''}`);
-    document.querySelectorAll('.dc[data-ph]').forEach(c => { const base = c.dataset.ph, exts = ['jpg', 'png'], tryExt = i => { if (i >= exts.length) return; const u = base + '.' + exts[i], im = new Image(); im.onload = () => { c.style.setProperty('--ph', `url('${u}')`); c.classList.add('ph'); }; im.onerror = () => tryExt(i + 1); im.src = u; }; tryExt(0); });
+    applyPhotos(st.w);
     const car = document.getElementById('car'), dots = document.getElementById('dots');
     if (car) {
       const cs = [...car.children], bt = [...document.querySelectorAll('.wdi')], tk = (items.find(x => x.wd === tdi) || items.find(x => !x.done && !x.rest) || items[0])?.key, target = document.getElementById('dc_' + tk) || cs[0];
