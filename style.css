@@ -385,3 +385,37 @@ html .dc.done.ph .btn,:root[data-mode="dark"] .dc.done.ph .btn{background:#fffff
 :root[data-mode="dark"] input,:root[data-mode="dark"] select,:root[data-mode="dark"] textarea{border-color:var(--bd)}
 :root[data-mode="dark"] .ring .rbg{stroke:var(--bd)}
 
+/* v37 · tutorial rediseñado (opción B) */
+.tuthead{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--p1,var(--b)),var(--p2,var(--b)))}
+.tuthead svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.tut2{border:1px solid transparent}
+.tut2>summary{gap:12px}
+.tut2 .ic{width:34px;height:34px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:var(--bg1,#e3edff);flex:none}
+.tut2 .ic svg{width:19px;height:19px;fill:none;stroke:var(--b);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tut2 .chev{margin-left:auto;width:8px;height:8px;border-right:2px solid var(--m);border-bottom:2px solid var(--m);transform:rotate(-45deg);transition:transform .2s;flex:none}
+.tut2[open] .chev{transform:rotate(45deg);border-color:var(--b)}
+.tut2>div{padding:2px 14px 16px}
+.tut2 h4{margin:12px 0 4px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--b)}
+.tut2 p{margin:6px 0}
+.tut2 .small{font-size:13px}
+.tip{border:1px solid var(--b);background:var(--bg1,#e3edff);border-radius:12px;padding:10px 12px;font-weight:600;margin:10px 0}
+.defit .dh{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.defit .dh b{font-size:18px;color:var(--b)}.defit .dh span{color:var(--m);font-size:12.5px}
+.rpebar{height:8px;border-radius:4px;background:linear-gradient(90deg,#22a55b,#eab308 55%,#dc2626);margin:8px 0 4px}
+.rpel{display:flex;justify-content:space-between;font-size:11.5px;color:var(--m)}
+:root[data-mode="dark"] .tut2{border-color:var(--bd)}
+:root[data-mode="dark"] .tut2[open]{border-color:var(--border)}
+:root[data-mode="dark"] .tut2 .ic{background:var(--sf2)}
+:root[data-mode="dark"] .tut2 .ic svg,:root[data-mode="dark"] .tut2 h4,:root[data-mode="dark"] .defit .dh b{stroke:var(--p3);color:var(--p3)}
+:root[data-mode="dark"] .tut2 .ic svg{color:inherit}
+:root[data-mode="dark"] .tut2[open] .chev{border-color:var(--p3)}
+:root[data-mode="dark"] .tip{background:var(--sf2);border-color:var(--border)}
+:root[data-mode="dark"] .defit{background:var(--card);border:1px solid var(--border);box-shadow:none}
+:root[data-mode="dark"] .defit p{color:var(--m)}
+
+/* v37 · pantalla de sesión: bordes más definidos en modo Oscuro */
+:root[data-mode="dark"] .setrow input,:root[data-mode="dark"] .timerow input{border:1px solid #3f3f46;background:#101010}
+:root[data-mode="dark"] .setrow input:focus{border-color:var(--p3);box-shadow:0 0 0 3px var(--border);outline:none}
+:root[data-mode="dark"] .vbtn,:root[data-mode="dark"] .ibtn,:root[data-mode="dark"] .setbtns button{border:1px solid #3f3f46;background:var(--sf)}
+:root[data-mode="dark"] .vbtn.on{background:var(--b);border-color:var(--p3);color:#fff}
+
