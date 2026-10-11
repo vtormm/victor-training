@@ -129,16 +129,17 @@ document.addEventListener('click', async e => {
 });
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-info]'); if (!b) return;
-  modal(`<h3>Información</h3><p>${esc(b.dataset.info)}</p>`);
+  modal(`<h3>Información</h3><p class="desc">${esc(b.dataset.info)}</p>`);
 });
 const isGif = u => /\.gif(\?.*)?$/i.test(u);
+const PLAYI = '<svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>';
 function videoBtn(url) {
   if (!url) return '';
-  if (isGif(url)) return `<button type="button" class="linklike" data-gif="${esc(url)}">▶️ Ver GIF</button>`;
+  if (isGif(url)) return `<button type="button" class="vlnk" data-gif="${esc(url)}">${PLAYI} Ver GIF</button>`;
   const yt = ytId(url), dr = !yt && driveId(url);
-  if (!yt && !dr) return `<a href="${esc(url)}" target="_blank" rel="noopener">Ver vídeo</a>`;
+  if (!yt && !dr) return `<a class="vlnk" href="${esc(url)}" target="_blank" rel="noopener">${PLAYI} Ver vídeo</a>`;
   const src = yt ? `https://www.youtube.com/embed/${yt}?autoplay=1&playsinline=1` : `https://drive.google.com/file/d/${dr}/preview`;
-  return `<button type="button" class="linklike" data-video="${esc(src)}">▶️ Ver vídeo</button>`;
+  return `<button type="button" class="vlnk" data-video="${esc(src)}">${PLAYI} Ver vídeo</button>`;
 }
 function videoIconBtn(url) {
   if (!url) return '';
@@ -561,7 +562,7 @@ const T = {
   async ej(h) {
     const L = await ok(sb.from('exercises').select('*').order('muscle_group').order('name'));
         const cats = (x, def) => Object.entries(CATS).map(([k, [n]]) => `<option value="${k}" ${(x ? x.category === k : k === def) ? 'selected' : ''}>${n}</option>`).join('');
-    const row = x => `<div class="card row it ${cc(x.category)}"><div><b>${esc(x.name)}</b> <small class="muted">${esc(x.muscle_group || '')}</small>${x.video_url ? ` ${videoBtn(x.video_url)}` : ''}${x.description ? `<br><small>${esc(x.description)}</small>` : ''}</div><div class="acts"><button class="sm ghost" data-ed="${x.id}">Editar</button><button class="sm ghost" data-id="${x.id}">✕</button></div></div>`;
+    const row = x => `<div class="card row it ${cc(x.category)}"><div class="exm"><div><b>${esc(x.name)}</b> <small class="muted">${esc(x.muscle_group || '')}</small></div>${x.video_url ? `<div>${videoBtn(x.video_url)}</div>` : ''}${x.description ? `<div class="desc">${esc(x.description)}</div>` : ''}</div><div class="acts"><button class="sm ghost" data-ed="${x.id}">Editar</button><button class="sm ghost" data-id="${x.id}" aria-label="Borrar">✕</button></div></div>`;
     const vals = f => ({ name: f.get('n').trim(), category: f.get('c'), muscle_group: f.get('g') || null, description: f.get('d').trim() || null, video_url: f.get('v').trim() || null });
     const errMsg = e => e?.code === '23505' ? 'Ya tienes un ejercicio con ese nombre.' : e?.code === '23514' ? 'Esa categoría no es válida. Recarga la página e inténtalo de nuevo.' : 'No se ha podido guardar el ejercicio. Inténtalo de nuevo.';
     const key = h && h[1];

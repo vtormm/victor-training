@@ -419,3 +419,17 @@ html .dc.done.ph .btn,:root[data-mode="dark"] .dc.done.ph .btn{background:#fffff
 :root[data-mode="dark"] .vbtn,:root[data-mode="dark"] .ibtn,:root[data-mode="dark"] .setbtns button{border:1px solid #3f3f46;background:var(--sf)}
 :root[data-mode="dark"] .vbtn.on{background:var(--b);border-color:var(--p3);color:#fff}
 
+/* v38 · vídeo y panel de ejercicios del entrenador */
+.vlnk{display:inline-flex;align-items:center;gap:6px;width:auto;margin:6px 0 2px;padding:5px 12px;font:600 13px system-ui;line-height:1.2;border-radius:999px;background:transparent;color:var(--b);border:1px solid var(--b);box-shadow:none;text-decoration:none}
+:root[data-mode="dark"] .vlnk{color:var(--p3);border-color:var(--border);background:var(--sf)}
+.desc{white-space:pre-line;overflow-wrap:anywhere;font-size:14px;margin:6px 0 0}
+.card.row.it{align-items:flex-start}
+.card.row.it>.exm{min-width:0;flex:1 1 auto}
+.card.row.it .acts{flex:none;gap:6px}
+.card.row.it .acts button{width:auto;min-width:0;margin:0;padding:8px 12px;font-size:13px;border-radius:10px}
+.card.row.it .acts button[data-id]{width:36px;padding:8px 0}
+/* botón de cerrar de la ventana de vídeo */
+.ov.vmodal .mod button[data-x]{color:#111;font-weight:700}
+:root[data-mode="dark"] .ov.vmodal .mod button[data-x]{background:var(--card);color:#fff;border:1px solid var(--border)}
+:root[data-mode="dark"] .ov.vmodal .card.mod{border:0}
+
