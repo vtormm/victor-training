@@ -433,3 +433,44 @@ html .dc.done.ph .btn,:root[data-mode="dark"] .dc.done.ph .btn{background:#fffff
 :root[data-mode="dark"] .ov.vmodal .mod button[data-x]{background:var(--card);color:#fff;border:1px solid var(--border)}
 :root[data-mode="dark"] .ov.vmodal .card.mod{border:0}
 
+/* v40 · panel del entrenador más limpio */
+.progact{display:flex;gap:8px;margin:0 0 10px}.progact button{flex:1;margin:0}
+.wkrow{display:flex;align-items:center;justify-content:flex-start;gap:10px}
+.wkrow .grow{flex:1;min-width:0;text-decoration:none;color:inherit}
+.wkt1{display:flex;align-items:center;gap:8px}.wkt1 b{font-size:17px}
+.wkrow small{display:block;margin-top:2px}
+.wkrow .ic{width:40px;height:40px;padding:0;flex:none;margin:0}
+/* tarjeta de día */
+.dcard{overflow:visible}
+body[data-role=TRAINER] .card.dcard.pend,body[data-role=TRAINER] .card.dcard.done{background:var(--card,#fff)}
+body[data-role=TRAINER] .card.dcard.pend{border-left-color:#cfd4dc}
+body[data-role=TRAINER] .card.dcard.done{border-left-color:#4caf7a}
+:root[data-mode="dark"] body[data-role=TRAINER] .card.dcard.pend,:root[data-mode="dark"] body[data-role=TRAINER] .card.dcard.done{background:var(--card);border:1px solid var(--bd)}
+:root[data-mode="dark"] body[data-role=TRAINER] .card.dcard.pend{border-left:4px solid #52525b}
+:root[data-mode="dark"] body[data-role=TRAINER] .card.dcard.done{border-left:4px solid #1f7a55}
+.dhead{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px}
+.dtitle{flex:1;min-width:0}.dtitle b{display:block;font-size:17px}.dtitle span{display:block;color:var(--m);font-size:14px;margin-top:2px}
+.dst{font-size:12px;color:var(--m);white-space:nowrap;margin-top:4px}.dst.ok{color:#22a55b;font-weight:700}
+.dmenu{position:relative;flex:none}
+.dmenu summary{list-style:none;cursor:pointer;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;line-height:1;background:var(--sf,#e8ecf3);color:var(--d)}
+.dmenu summary::-webkit-details-marker{display:none}
+.dmenu-list{position:absolute;right:0;top:42px;z-index:30;min-width:220px;padding:6px;border-radius:14px;background:var(--card,#fff);border:1px solid var(--border,#d7dde8);box-shadow:0 12px 32px #0005;display:flex;flex-direction:column}
+.dmenu-list button{width:100%;text-align:left;background:transparent;border:0;box-shadow:none;padding:12px;font-size:14px;font-weight:600;border-radius:10px;color:var(--d);margin:0}
+.dmenu-list button:active{background:var(--sf,#eef)}.dmenu-list .danger{color:#e5484d}
+/* ejercicios dentro del día */
+.dcard .ex{display:block;background:var(--sf,#f6f7fa);border:1px solid var(--bd,#e6e9ef);border-left:4px solid var(--c,#cbd5e1);border-radius:12px;padding:10px 12px;margin:8px 0}
+.dcard .exn b{font-size:15px}
+.dcard .exd{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:6px}
+.dcard .exd small{flex:1;min-width:0;color:var(--m)}
+.dcard .acts{flex:none;gap:4px}
+.dcard .acts button{width:34px;min-width:0;height:34px;padding:0;margin:0;font-size:15px;border-radius:9px}
+.dcard .acts button[data-a="ed"]{width:auto;padding:0 12px;font-size:13px}
+.dcard .addex{width:100%;margin-top:6px;background:transparent;color:var(--b);border:1px dashed var(--b);box-shadow:none}
+:root[data-mode="dark"] .dcard .addex{color:var(--p3);border-color:var(--border)}
+/* descripciones con formato */
+.desc.rich{white-space:normal}
+.rich p{margin:6px 0}.rich ul,.rich ol{margin:6px 0 6px 20px;padding:0}.rich li{margin:2px 0}
+.fmtbar{display:flex;align-items:center;gap:6px;margin:6px 0 4px}
+.fmtbar button{width:auto;min-width:38px;margin:0;padding:6px 10px;font-size:14px;border-radius:9px;background:var(--sf,#e8ecf3);color:var(--d);box-shadow:none;border:1px solid var(--bd,#d7dde8)}
+.fmtbar small{margin-left:auto;font-size:11.5px}
+

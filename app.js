@@ -128,7 +128,7 @@ document.addEventListener('click', async e => {
 });
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-info]'); if (!b) return;
-  modal(`<h3>Información</h3><p class="desc">${esc(b.dataset.info)}</p>`);
+  modal(`<h3>Información</h3><div class="desc rich">${fmtRich(b.dataset.info)}</div>`);
 });
 const isGif = u => /\.gif(\?.*)?$/i.test(u);
 const PLAYI = '<svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>';
@@ -432,8 +432,8 @@ const T = {
      ${st.w ? `<div class="chips">${st.days.map(d => `<span class="chip ${st.doneSet.has(d.id) ? 'done' : 'pend'}">${esc(d.day_name)}</span>`).join('')}</div>` : ''}
      ${st.next ? `<div class="card next"><small class="muted">Próxima sesión</small><br><b>${esc(st.next.day_name)} · ${esc(st.next.title)}</b></div>` : ''}
      ${cm.length ? '<h3>💬 Últimos comentarios</h3>' + cm.map(s => `<div class="card cmt"><small class="muted">${fd(s.completed_at)} · ${esc(s.workout_days.title)}</small><br>“${esc(s.observations)}”</div>`).join('') : ''}
-     <div class="row"><h3>📅 Programación</h3><span><button data-a="new">+ Semana</button>${ws[0] ? ' <button data-a="copy" class="ghost">Copiar última</button>' : ''}</span></div>
-     ${ws.map(w => `<div class="card row ${w.id === cw?.id ? 'cur' : ''}"><a class="grow" href="#/w/${w.id}"><b>Semana ${w.week_number}</b>${w.id === cw?.id ? ' <span class="tag">actual</span>' : ''} <small class="muted">· ${fd(w.week_start + 'T12:00:00')} – ${fd(dAdd(w.week_start, 6) + 'T12:00:00')} · ${w.workout_days.length} días</small></a><button class="sm ghost" data-del="${w.id}" title="Eliminar semana">🗑</button></div>`).join('') || '<p class="muted">Crea la primera semana.</p>'}
+     <h3>📅 Programación</h3><div class="progact"><button data-a="new">+ Semana</button>${ws[0] ? '<button data-a="copy" class="ghost">Copiar última</button>' : ''}</div>
+     ${ws.map(w => `<div class="card row wkrow ${w.id === cw?.id ? 'cur' : ''}"><a class="grow" href="#/w/${w.id}"><div class="wkt1"><b>Semana ${w.week_number}</b>${w.id === cw?.id ? '<span class="tag">actual</span>' : ''}</div><small class="muted">${fdMes(w.week_start)} – ${fdMes(dAdd(w.week_start, 6))} · ${w.workout_days.length} ${w.workout_days.length === 1 ? 'día' : 'días'}</small></a><button class="sm ghost ic" data-del="${w.id}" title="Eliminar semana" aria-label="Eliminar semana">🗑</button></div>`).join('') || '<p class="muted">Crea la primera semana.</p>'}
      <div class="row"><h3>📈 Sesiones</h3><a href="#/c/${id}/ej">📊 Progresión por ejercicio →</a></div>
      ${ses.map(s => `<a class="card link" href="#/ver/${s.id}"><span class="rpe-dot" style="background:${rc(s.rpe)}">${s.rpe}</span><b>${fd(s.completed_at)}</b> · ${esc(s.workout_days.day_name + ' — ' + s.workout_days.title)}${s.observations ? `<br><small class="muted">${esc(s.observations.slice(0, 90))}</small>` : ''}</a>`).join('') || '<p class="muted">Sin sesiones completadas.</p>'}`);
     $app.onclick = async e => {
@@ -480,13 +480,12 @@ const T = {
     const wks = await ok(sb.from('workout_weeks').select('id,week_number').eq('client_id', w.client_id).order('week_number')), wi = wks.findIndex(x => x.id === id), pv = wks[wi - 1], nx = wks[wi + 1];
     html(`<a href="#/c/${w.client_id}">← ${esc(w.profiles.nombre)}</a><div class="row"><span class="wk"><a class="${pv ? '' : 'off'}" href="#/w/${(pv || w).id}">‹</a><b>Semana ${w.week_number}</b><a class="${nx ? '' : 'off'}" href="#/w/${(nx || w).id}">›</a></span><button data-a="addday">+ Día</button></div>
      <p class="muted">${shortD(w.week_start)} – ${shortD(dAdd(w.week_start, 6))}</p>${wkStrip}${monFix}
-     ${days.map((d, i) => `<div class="card ${dnSet.has(d.id) ? 'done' : 'pend'}"><div class="row"><b>${esc(d.day_name)}${dayDate(d.day_name) ? ' ' + shortD(dayDate(d.day_name)) : ''} — ${esc(d.title)}</b><small>${dnSet.has(d.id) ? '✓ Completada' : 'Pendiente'}</small></div><div class="row wrap">${i > 0 ? `<button class="ghost sm" data-a="dayup" data-d="${d.id}" title="Subir día" aria-label="Subir día">↑</button>` : ''}${i < days.length - 1 ? `<button class="ghost sm" data-a="daydn" data-d="${d.id}" title="Bajar día" aria-label="Bajar día">↓</button>` : ''}<button class="ghost sm" data-a="dup" data-d="${d.id}">Duplicar día</button><button class="ghost sm" data-a="tpl" data-d="${d.id}">Guardar como sesión base</button><button class="ghost sm" data-a="edday" data-d="${d.id}">Editar día</button><button class="ghost sm" data-a="delday" data-id="${d.id}">Eliminar día</button></div>
-      ${d.workout_exercises.map((x, i) => `<div class="ex ${cc(x.exercises.category)}"><div><b>${i + 1}. ${esc(x.exercises.name)}</b><br><small>${x.track_mode === 'time' ? `${x.sets} series × ${fmtTime(x.duration_target)}` : `${x.sets} × ${x.reps_min}–${x.reps_max} · RIR ${x.rir_min}–${x.rir_max}`}${x.variant ? ' · ' + VARIANTS[x.variant] : ''}${x.trainer_notes ? ' · ' + esc(x.trainer_notes) : ''}</small></div>
-       <div class="acts"><button class="sm ghost" data-a="up" data-id="${x.id}" data-d="${d.id}">↑</button><button class="sm ghost" data-a="dn" data-id="${x.id}" data-d="${d.id}">↓</button><button class="sm ghost" data-a="ed" data-id="${x.id}" data-d="${d.id}">Editar</button><button class="sm ghost" data-a="del" data-id="${x.id}">✕</button></div></div>`).join('')}
-      <button data-a="addex" data-d="${d.id}">+ Ejercicio</button></div>`).join('') || '<p class="muted">Añade los días de entrenamiento.</p>'}`);
+     ${days.map((d, i) => { const dn = dnSet.has(d.id), dd = dayDate(d.day_name); return `<div class="card dcard ${dn ? 'done' : 'pend'}"><div class="dhead"><div class="dtitle"><b>${esc(d.day_name)}${dd ? ' · ' + shortD(dd) : ''}</b><span>${esc(d.title)}</span></div><span class="dst ${dn ? 'ok' : ''}">${dn ? '✓ Completada' : 'Pendiente'}</span><details class="dmenu"><summary aria-label="Más acciones del día">⋯</summary><div class="dmenu-list">${i > 0 ? `<button type="button" data-a="dayup" data-d="${d.id}">↑ Subir día</button>` : ''}${i < days.length - 1 ? `<button type="button" data-a="daydn" data-d="${d.id}">↓ Bajar día</button>` : ''}<button type="button" data-a="edday" data-d="${d.id}">Editar día</button><button type="button" data-a="dup" data-d="${d.id}">Duplicar día</button><button type="button" data-a="tpl" data-d="${d.id}">Guardar como sesión base</button><button type="button" class="danger" data-a="delday" data-id="${d.id}">Eliminar día</button></div></details></div>
+      ${d.workout_exercises.map((x, i) => `<div class="ex ${cc(x.exercises.category)}"><div class="exn"><b>${i + 1}. ${esc(x.exercises.name)}</b></div><div class="exd"><small>${x.track_mode === 'time' ? `${x.sets} series × ${fmtTime(x.duration_target)}` : `${x.sets} × ${x.reps_min}–${x.reps_max} · RIR ${x.rir_min}–${x.rir_max}`}${x.variant ? ' · ' + VARIANTS[x.variant] : ''}${x.trainer_notes ? ' · ' + esc(x.trainer_notes) : ''}</small><div class="acts"><button class="sm ghost" data-a="up" data-id="${x.id}" data-d="${d.id}" aria-label="Subir">↑</button><button class="sm ghost" data-a="dn" data-id="${x.id}" data-d="${d.id}" aria-label="Bajar">↓</button><button class="sm ghost" data-a="ed" data-id="${x.id}" data-d="${d.id}">Editar</button><button class="sm ghost" data-a="del" data-id="${x.id}" aria-label="Quitar">✕</button></div></div></div>`).join('')}
+      <button class="addex" data-a="addex" data-d="${d.id}">+ Ejercicio</button></div>`; }).join('') || '<p class="muted">Añade los días de entrenamiento.</p>'}`);
     const find = did => days.find(d => d.id === did);
     $app.onclick = async e => {
-      const b = e.target.closest('[data-a]'); if (!b) return; const { a, id: xid, d: did } = b.dataset;
+      const b = e.target.closest('[data-a]'); if (!b) return; b.closest('details.dmenu')?.removeAttribute('open'); const { a, id: xid, d: did } = b.dataset;
       try {
         if (a === 'fixmon') { await ok(sb.from('workout_weeks').update({ week_start: monday(w.week_start) }).eq('id', id)); toast('Semana movida al lunes.'); route(); return; }
         if (a === 'edday') {
@@ -561,7 +560,7 @@ const T = {
   async ej(h) {
     const L = await ok(sb.from('exercises').select('*').order('muscle_group').order('name'));
         const cats = (x, def) => Object.entries(CATS).map(([k, [n]]) => `<option value="${k}" ${(x ? x.category === k : k === def) ? 'selected' : ''}>${n}</option>`).join('');
-    const row = x => `<div class="card row it ${cc(x.category)}"><div class="exm"><div><b>${esc(x.name)}</b> <small class="muted">${esc(x.muscle_group || '')}</small></div>${x.video_url ? `<div>${videoBtn(x.video_url)}</div>` : ''}${x.description ? `<div class="desc">${esc(x.description)}</div>` : ''}</div><div class="acts"><button class="sm ghost" data-ed="${x.id}">Editar</button><button class="sm ghost" data-id="${x.id}" aria-label="Borrar">✕</button></div></div>`;
+    const row = x => `<div class="card row it ${cc(x.category)}"><div class="exm"><div><b>${esc(x.name)}</b> <small class="muted">${esc(x.muscle_group || '')}</small></div>${x.video_url ? `<div>${videoBtn(x.video_url)}</div>` : ''}${x.description ? `<div class="desc rich">${fmtRich(x.description)}</div>` : ''}</div><div class="acts"><button class="sm ghost" data-ed="${x.id}">Editar</button><button class="sm ghost" data-id="${x.id}" aria-label="Borrar">✕</button></div></div>`;
     const vals = f => ({ name: f.get('n').trim(), category: f.get('c'), muscle_group: f.get('g') || null, description: f.get('d').trim() || null, video_url: f.get('v').trim() || null });
     const errMsg = e => e?.code === '23505' ? 'Ya tienes un ejercicio con ese nombre.' : e?.code === '23514' ? 'Esa categoría no es válida. Recarga la página e inténtalo de nuevo.' : 'No se ha podido guardar el ejercicio. Inténtalo de nuevo.';
     const key = h && h[1];
@@ -575,11 +574,11 @@ const T = {
     const list = key === 'otros' ? L.filter(x => !x.category) : L.filter(x => x.category === key);
     const label = key === 'otros' ? 'Sin categoría' : CATS[key]?.[0];
     if (label === undefined) { location.hash = '#/ej'; return; }
-    html(`<a href="#/ej">← Categorías</a><h2>${esc(label)}</h2><form id="ef" class="card"><input name="n" placeholder="Nombre" required maxlength="80"><select name="c">${cats(null, key === 'otros' ? Object.keys(CATS)[0] : key)}</select><select name="g">${mgOpts()}</select><textarea name="d" placeholder="Descripción / instrucciones" maxlength="1000"></textarea><input name="v" type="url" placeholder="URL de vídeo (opcional)"><button>Crear ejercicio</button></form>
+    html(`<a href="#/ej">← Categorías</a><h2>${esc(label)}</h2><form id="ef" class="card"><input name="n" placeholder="Nombre" required maxlength="80"><select name="c">${cats(null, key === 'otros' ? Object.keys(CATS)[0] : key)}</select><select name="g">${mgOpts()}</select>${FMTBAR}<textarea name="d" placeholder="Descripción / instrucciones" maxlength="1000"></textarea><input name="v" type="url" placeholder="URL de vídeo (opcional)"><button>Crear ejercicio</button></form>
      ${list.map(row).join('') || '<p class="muted">Sin ejercicios en esta categoría todavía.</p>'}`);
     document.getElementById('ef').onsubmit = async ev => { ev.preventDefault(); try { await ok(sb.from('exercises').insert({ trainer_id: me.id, ...vals(new FormData(ev.target)) })); route(); } catch (e) { console.error(e); toast(errMsg(e)); } };
     const edit = x => {
-      const m = modal(`<form id="edf"><h3>Editar ejercicio</h3><input name="n" required maxlength="80" value="${esc(x.name)}"><select name="c">${cats(x)}</select><select name="g">${mgOpts(x.muscle_group)}</select><textarea name="d" maxlength="1000" placeholder="Descripción">${esc(x.description || '')}</textarea><input name="v" type="url" placeholder="URL de vídeo" value="${esc(x.video_url || '')}"><button>Guardar</button></form>`);
+      const m = modal(`<form id="edf"><h3>Editar ejercicio</h3><input name="n" required maxlength="80" value="${esc(x.name)}"><select name="c">${cats(x)}</select><select name="g">${mgOpts(x.muscle_group)}</select>${FMTBAR}<textarea name="d" maxlength="1000" placeholder="Descripción">${esc(x.description || '')}</textarea><input name="v" type="url" placeholder="URL de vídeo" value="${esc(x.video_url || '')}"><button>Guardar</button></form>`);
       m.querySelector('#edf').onsubmit = async ev => { ev.preventDefault(); try { await ok(sb.from('exercises').update(vals(new FormData(ev.target))).eq('id', x.id)); m.remove(); route(); } catch (er) { console.error(er); toast(errMsg(er)); } };
     };
     $app.onclick = async e => {
@@ -660,6 +659,32 @@ async function applyPhotos(w) {
     document.querySelectorAll('.dc[data-pr]').forEach(c => { const off = Math.round((new Date(c.dataset.pr + 'T12:00:00') - new Date(w.week_start + 'T12:00:00')) / 864e5); if (P.r.length) setPh(c, P.r[(hash(me.id + '|' + w.week_start) + off) % P.r.length]); });
   } catch (e) { console.error(e); }
 }
+const fdMes = s => new Date(s + 'T12:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }).replace('.', '');
+// Descripciones con formato sencillo: **negrita**, _cursiva_, listas con "- " o "1. " y apartados con línea en blanco (siempre se escapa el HTML)
+const fmtRich = t => {
+  const inl = s => esc(s).replace(/\*\*([^*\n]+)\*\*/g, '<b>$1</b>').replace(/(^|[\s(¿¡])_([^_\n]+)_(?=$|[\s.,;:!?)])/g, '$1<i>$2</i>');
+  const out = []; let para = [], list = null;
+  const flushP = () => { if (para.length) { out.push('<p>' + para.map(inl).join('<br>') + '</p>'); para = []; } };
+  const flushL = () => { if (list) { out.push(`<${list.t}>` + list.i.map(x => '<li>' + inl(x) + '</li>').join('') + `</${list.t}>`); list = null; } };
+  String(t || '').replace(/\r/g, '').split('\n').forEach(raw => {
+    const l = raw.trimEnd(), ul = l.match(/^\s*[-•]\s+(.*)$/), ol = l.match(/^\s*\d+[.)]\s+(.*)$/);
+    if (ul || ol) { flushP(); const tp = ul ? 'ul' : 'ol'; if (list && list.t !== tp) flushL(); (list ??= { t: tp, i: [] }).i.push((ul || ol)[1]); }
+    else if (!l.trim()) { flushP(); flushL(); }
+    else { flushL(); para.push(l); }
+  });
+  flushP(); flushL(); return out.join('');
+};
+const FMTBAR = '<div class="fmtbar"><button type="button" data-fmt="b" aria-label="Negrita"><b>B</b></button><button type="button" data-fmt="i" aria-label="Cursiva"><i>I</i></button><button type="button" data-fmt="l">• Lista</button><small class="muted">Línea en blanco = nuevo apartado</small></div>';
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-fmt]'); if (!b) return;
+  const ta = b.closest('form')?.querySelector('textarea[name="d"]'); if (!ta) return;
+  e.preventDefault();
+  const s = ta.selectionStart, en = ta.selectionEnd, v = ta.value, sel = v.slice(s, en), k = b.dataset.fmt;
+  if (k === 'b' || k === 'i') { const m = k === 'b' ? '**' : '_', t = sel || 'texto'; ta.value = v.slice(0, s) + m + t + m + v.slice(en); ta.selectionStart = s + m.length; ta.selectionEnd = s + m.length + t.length; }
+  else { const ls = v.lastIndexOf('\n', s - 1) + 1, nl = v.indexOf('\n', en), le = nl === -1 ? v.length : nl, blk = v.slice(ls, le).split('\n').map(l => l.startsWith('- ') ? l.slice(2) : '- ' + l).join('\n'); ta.value = v.slice(0, ls) + blk + v.slice(le); ta.selectionStart = ls; ta.selectionEnd = ls + blk.length; }
+  ta.focus();
+});
+document.addEventListener('click', e => { document.querySelectorAll('details.dmenu[open]').forEach(d => { if (!d.contains(e.target)) d.removeAttribute('open'); }); });
 const RACT = [['movilidad', 'Movilidad', '10–15 min', 'leaf'], ['caminar', 'Camina', '30–60 min', 'walk'], ['estiramientos', 'Estira', '10–15 min', 'stretch']];
 const dAdd = (d, n) => { const x = new Date(d + 'T12:00:00'); x.setDate(x.getDate() + n); return x.toLocaleDateString('sv-SE'); };
 const restCard = (i, isToday, date, RC) => { const can = date <= today(); return `<div class="dc rest ${isToday ? 'today' : ''}" id="dc_r${i}" data-pr="${date}"><div class="dct"><span>${WDN[i]}</span>${isToday ? '<em>HOY</em>' : ''}</div><h3>Descanso</h3><p class="rq">“${isToday ? 'Hoy' : 'Este día'} no hay entrenamiento.”</p><p class="rt">Los días de descanso aprovecha para hacer movilidad, salir a caminar y realizar estiramientos.${can ? ' Toca cada actividad para marcarla como hecha.' : ''}</p><div class="rtiles">${RACT.map(([key, lab, min, ic]) => { const dn = RC.has(date + '|' + key), tg = can ? 'button' : 'div'; return `<${tg} ${can ? 'type="button"' : ''} class="rtl ${dn ? 'done' : ''}" ${can ? `data-rest="${key}" data-date="${date}"` : ''}><svg viewBox="0 0 24 24">${ICON[ic]}</svg><b>${lab}</b><small>${min}</small><span class="rck">✓ Hecho</span></${tg}>`; }).join('')}</div></div>`; };
