@@ -134,9 +134,15 @@ document.addEventListener('click', async e => {
     const last = L.reduce((p, l) => l.workout_sessions.started_at > p ? l.workout_sessions.started_at : p, ''), S = L.filter(l => l.workout_sessions.started_at === last).sort((x, y) => x.set_number - y.set_number);
     const row = l => l.duration_seconds ? fmtClock(l.duration_seconds) : `${l.weight} kg × ${l.reps}`, v = S.find(l => l.variant)?.variant;
     const e1 = l => l.duration_seconds ? l.duration_seconds : (+l.weight) * (1 + (+l.reps) / 30), top = arr => arr.reduce((p, l) => e1(l) > e1(p) ? l : p);
-    const best = top(S), lastSet = S[S.length - 1], rec = top(L.filter(l => !v || l.variant === v));
-    const recLine = e1(rec) > e1(best) ? `<p class="muted lvrec">Tu mejor serie: <b>${row(rec)}</b> · ${fd(rec.workout_sessions.started_at)}</p>` : '';
-    card.querySelector('p').outerHTML = `<p class="muted">${fd(last)}${v ? ' · ' + (VARIANTS[v] || v) : ''}</p><div class="lv2"><div class="lvb best"><small>Mejor serie</small><b>${row(best)}</b></div><div class="lvb"><small>Última serie</small><b>${row(lastSet)}</b></div></div>${recLine}<div class="lvlist">${S.map(l => `<div><span>Serie ${l.set_number}</span><b>${row(l)}</b></div>`).join('')}</div>`;
+    const best = top(L.filter(l => !v || l.variant === v)), lastSet = S[S.length - 1];
+    const show = k => {
+      const set = k === 'best' ? best : lastSet, ts = set.workout_sessions.started_at, SS = L.filter(l => l.workout_sessions.started_at === ts).sort((x, y) => x.set_number - y.set_number), vv = SS.find(l => l.variant)?.variant;
+      card.querySelector('#lvbody').innerHTML = `<p class="muted">${fd(ts)}${vv ? ' · ' + (VARIANTS[vv] || vv) : ''}</p><div class="lvlist">${SS.map(l => `<div class="${l === set ? 'hl' : ''}"><span>Serie ${l.set_number}</span><b>${row(l)}</b></div>`).join('')}</div>`;
+      card.querySelectorAll('[data-lvs]').forEach(x => x.classList.toggle('on', x.dataset.lvs === k));
+    };
+    card.querySelector('p').outerHTML = `<div class="lv2"><button type="button" class="lvb" data-lvs="best"><small>Mejor serie</small><b>${row(best)}</b><em>${fdShort(best.workout_sessions.started_at)}</em></button><button type="button" class="lvb" data-lvs="last"><small>Última serie</small><b>${row(lastSet)}</b><em>${fdShort(last)}</em></button></div><div id="lvbody"></div>`;
+    card.addEventListener('click', ev => { const t = ev.target.closest('[data-lvs]'); if (t) show(t.dataset.lvs); });
+    show('last');
   } catch (er) { console.error(er); card.querySelector('p').textContent = 'No se ha podido cargar.'; }
 });
 document.addEventListener('click', e => {

@@ -495,3 +495,11 @@ body[data-role=TRAINER] .card.dcard.done{border-left-color:#4caf7a}
 .lvrec{margin:4px 0 8px;font-size:13px}
 .lvlist div{display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-top:1px solid var(--bd,#e6e9ef);font-size:14px}
 
+/* v43 · "Última vez": los recuadros son pestañas */
+.lv2 .lvb{display:block;width:auto;margin:0;text-align:left;background:var(--sf,#eef3fb);color:var(--d);box-shadow:none;border:1px solid transparent;border-radius:14px;padding:10px 12px}
+.lv2 .lvb em{display:block;font-style:normal;color:var(--m);font-size:12px;margin-top:2px}
+.lv2 .lvb.on{border-color:var(--b)}
+:root[data-mode="dark"] .lv2 .lvb.on{border-color:var(--p3)}
+.lvlist .hl{color:var(--b);font-weight:700}
+:root[data-mode="dark"] .lvlist .hl{color:var(--p3)}
+
