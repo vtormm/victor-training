@@ -31,31 +31,30 @@ const fmtClock = s => { s = Math.max(0, Math.round(s)); const m = Math.floor(s /
 const fmtTime = s => { s = Math.round(s); const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60; return h ? `${h}h ${String(m).padStart(2, '0')}m` : m ? `${m}m ${String(sec).padStart(2, '0')}s` : `${sec}s`; };
 const VGROUP = { 'Tren superior': '#3b82f6', 'Tren inferior': '#34d399', 'Core': '#8b5cf6', 'Otros': '#94a3b8' };
 const volGroup = (cat, mg) => mg === 'Core' ? 'Core' : /^sup_/.test(cat) ? 'Tren superior' : /^inf_/.test(cat) ? 'Tren inferior' : 'Otros';
-const volumeCard = L => {
-  if (!L.length) return '';
-  const buckets = {};
+const volumeCard = (L, w, ws) => {
+  if (!L.length || !w) return '';
+  const dw = {}; (ws || []).forEach(x => (x.workout_days || []).forEach(d => { dw[d.id] = x.id; }));
+  const ord = [...ws].sort((p, q) => p.week_start < q.week_start ? 1 : -1), ix = ord.findIndex(x => x.id === w.id), prevWk = ix >= 0 ? ord[ix + 1] : null;
+  const B = {}, mk = () => ({ kg: 0, time: 0, cats: {}, grp: {} });
   L.forEach(l => {
-    const wk = monday(dOf(l.workout_sessions.started_at)), cat = l.workout_exercises.exercises.category || '';
-    buckets[wk] ??= { kg: 0, time: 0, cats: {} }; buckets[wk].cats[cat] ??= { kg: 0, time: 0 };
-    if (l.duration_seconds != null) { buckets[wk].time += l.duration_seconds; buckets[wk].cats[cat].time += l.duration_seconds; }
-    else if (l.weight != null && l.reps != null) { const v = +l.weight * l.reps; buckets[wk].kg += v; buckets[wk].cats[cat].kg += v; }
+    const wid = dw[l.workout_sessions.workout_day_id]; if (!wid) return;
+    const ex = l.workout_exercises.exercises, cat = ex.category || '', b = B[wid] ??= mk(); b.cats[cat] ??= { kg: 0, time: 0 };
+    if (l.duration_seconds != null) { b.time += l.duration_seconds; b.cats[cat].time += l.duration_seconds; }
+    else if (l.weight != null && l.reps != null) { const v = +l.weight * l.reps, g = volGroup(cat, ex.muscle_group); b.kg += v; b.cats[cat].kg += v; b.grp[g] = (b.grp[g] || 0) + v; }
   });
-  const curW = monday(today()), prevW = monday(new Date(new Date(curW + 'T12:00:00').getTime() - 7 * 864e5).toLocaleDateString('sv-SE'));
-  const cur = buckets[curW] || { kg: 0, time: 0, cats: {} }, prev = buckets[prevW] || { kg: 0, time: 0, cats: {} };
-  if (!cur.kg && !cur.time && !prev.kg && !prev.time) return '';
+  const cur = B[w.id] || mk(), prev = (prevWk && B[prevWk.id]) || mk(), t = today(), isCurWk = w.week_start <= t && t <= dAdd(w.week_start, 6);
+  window.__volLabel = isCurWk ? 'Esta semana' : 'Semana ' + w.week_number;
   const deltaKg = prev.kg ? Math.round((cur.kg - prev.kg) / prev.kg * 100) : null;
   const headline = cur.kg ? `${Math.round(cur.kg).toLocaleString('es-ES')}<small> kg</small>` : cur.time ? fmtTime(cur.time) : '0<small> kg</small>';
-  window.__volRows = Object.entries(cur.cats).sort((a, b) => (b[1].kg || b[1].time) - (a[1].kg || a[1].time)).map(([k, v]) => {
+  window.__volRows = Object.entries(cur.cats).sort((x, y) => (y[1].kg || y[1].time) - (x[1].kg || x[1].time)).map(([k, v]) => {
     const ref = cur.kg || cur.time || 1, pct = Math.round(((v.kg || v.time) / ref) * 100);
     return `<div class="volbar ${cc(k)}"><i style="width:${pct}%"></i><span>${CATS[k] ? CATS[k][0] : 'Otros'}</span><b>${v.kg ? Math.round(v.kg).toLocaleString('es-ES') + ' kg' : fmtTime(v.time)}</b></div>`;
   }).join('');
-  const grp = {};
-  L.forEach(l => { if (monday(dOf(l.workout_sessions.started_at)) !== curW || l.duration_seconds != null || l.weight == null || l.reps == null) return; const ex = l.workout_exercises.exercises, g = volGroup(ex.category || '', ex.muscle_group); grp[g] = (grp[g] || 0) + (+l.weight * l.reps); });
-  const ent = Object.entries(grp).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]), tot = ent.reduce((t, [, v]) => t + v, 0) || 1;
-  const seg = ent.length ? `<div class="vseg">${ent.map(([g, v]) => `<i style="flex:${v};background:${VGROUP[g]}"></i>`).join('')}</div><div class="vleg">${ent.map(([g, v]) => `<i style="background:${VGROUP[g]}"></i><span class="n">${g}</span><span>${Math.round(v).toLocaleString('es-ES')} kg</span><span class="p">${Math.round(v / tot * 100)}%</span>`).join('')}</div>` : '';
-  return `<div class="card vol"><div class="vh"><b>📦 Volumen esta semana</b><button type="button" class="vchev" data-voldet aria-label="Ver detalle del volumen">›</button></div><div class="vb"><div class="vl"><span class="big">${headline}</span>${cur.kg && deltaKg !== null ? `<span class="dl ${deltaKg < 0 ? 'neg' : 'pos'}">${deltaKg < 0 ? '↓' : '↑'} ${Math.abs(deltaKg)}% vs. semana anterior</span>` : ''}</div><div class="vr">${seg}</div></div></div>`;
+  const ent = Object.entries(cur.grp).filter(([, v]) => v > 0).sort((x, y) => y[1] - x[1]), tot = ent.reduce((s, [, v]) => s + v, 0) || 1;
+  const seg = ent.length ? `<div class="vseg">${ent.map(([g, v]) => `<i style="flex:${v};background:${VGROUP[g]}"></i>`).join('')}</div><div class="vleg">${ent.map(([g, v]) => `<i style="background:${VGROUP[g]}"></i><span class="n">${g}</span><span>${Math.round(v).toLocaleString('es-ES')} kg</span><span class="p">${Math.round(v / tot * 100)}%</span>`).join('')}</div>` : '<small class="muted">Sin series registradas en esta semana.</small>';
+  return `<div class="card vol"><div class="vh"><b>📦 Volumen ${isCurWk ? 'esta semana' : 'semana ' + w.week_number}</b><button type="button" class="vchev" data-voldet aria-label="Ver detalle del volumen">›</button></div><div class="vb"><div class="vl"><span class="big">${headline}</span>${cur.kg && deltaKg !== null ? `<span class="dl ${deltaKg < 0 ? 'neg' : 'pos'}">${deltaKg < 0 ? '↓' : '↑'} ${Math.abs(deltaKg)}% vs. semana anterior</span>` : ''}</div><div class="vr">${seg}</div></div></div>`;
 };
-document.addEventListener('click', e => { if (!e.target.closest('[data-voldet]')) return; modal(`<h3>Detalle del volumen</h3><p class="muted">Esta semana, por categoría (anterior / posterior)</p>${window.__volRows || '<p class="muted">Sin datos.</p>'}`, 'center'); });
+document.addEventListener('click', e => { if (!e.target.closest('[data-voldet]')) return; modal(`<h3>Detalle del volumen</h3><p class="muted">${window.__volLabel || 'Esta semana'}, por categoría (anterior / posterior)</p>${window.__volRows || '<p class="muted">Sin datos.</p>'}`, 'center'); });
 const stat = (ws, ses, wk) => {
   const w = wk || curWeek(ws); if (!w) return {};
   const days = [...w.workout_days].sort((a, b) => a.day_order - b.day_order), done = new Set(ses.map(s => s.workout_day_id));
@@ -417,7 +416,7 @@ const T = {
       ok(sb.from('profiles').select('*').eq('id', id).single()),
       ok(sb.from('workout_weeks').select('*,workout_days(id,day_name,title,day_order)').eq('client_id', id).order('week_number', { ascending: false })),
       ok(sb.from('workout_sessions').select('id,workout_day_id,completed_at,rpe,observations,workout_days(day_name,title)').eq('client_id', id).eq('completed', true).order('completed_at', { ascending: false }).limit(200))]);
-    const vol = await ok(sb.from('set_logs').select('weight,reps,duration_seconds,workout_exercises(exercises(category,muscle_group)),workout_sessions!inner(client_id,completed,started_at)').eq('workout_sessions.client_id', id).eq('workout_sessions.completed', true));
+    const vol = await ok(sb.from('set_logs').select('weight,reps,duration_seconds,workout_exercises(exercises(category,muscle_group)),workout_sessions!inner(client_id,completed,started_at,workout_day_id)').eq('workout_sessions.client_id', id).eq('workout_sessions.completed', true));
     const ad = adherence(ws, ses);
     const cw = curWeek(ws), sw = h[2] === 's' ? ws.find(x => x.week_number === +h[3]) : null, st = stat(ws, ses, sw), rp = ses.slice(0, 3).map(s => s.rpe).filter(Boolean), ra = rp.length ? rp.reduce((a, b) => a + b, 0) / rp.length : 0;
     const pct = st.days?.length ? Math.round(st.done / st.days.length * 100) : 0, ini = ((p.nombre[0] || '') + (p.apellidos[0] || '')).toUpperCase(), rc = v => `hsl(${130 - (v - 1) * 13} 55% 85%)`, cm = ses.filter(s => s.observations).slice(0, 3);
@@ -429,7 +428,7 @@ const T = {
       <div class="tile"><small>Última sesión</small><b>${ses[0] ? fdShort(ses[0].completed_at) : '—'}</b></div>
       <div class="tile" ${ad.pct !== null && ad.pct < 70 ? 'style="background:#fbe4e4"' : ''}><small>Cumplimiento</small><b>${ad.pct !== null ? ad.pct + '%' : '—'}</b></div>
       <div class="tile"><small>Racha actual</small><b>${ad.streak ? '🔥 ' + ad.streak : '—'}</b></div></div>
-     ${volumeCard(vol)}
+     ${volumeCard(vol, st.w, ws)}
      ${st.w ? `<div class="chips">${st.days.map(d => `<span class="chip ${st.doneSet.has(d.id) ? 'done' : 'pend'}">${esc(d.day_name)}</span>`).join('')}</div>` : ''}
      ${st.next ? `<div class="card next"><small class="muted">Próxima sesión</small><br><b>${esc(st.next.day_name)} · ${esc(st.next.title)}</b></div>` : ''}
      ${cm.length ? '<h3>💬 Últimos comentarios</h3>' + cm.map(s => `<div class="card cmt"><small class="muted">${fd(s.completed_at)} · ${esc(s.workout_days.title)}</small><br>“${esc(s.observations)}”</div>`).join('') : ''}
@@ -695,7 +694,7 @@ const C = {
     const [ws, ses, vol, rc] = await Promise.all([
       ok(sb.from('workout_weeks').select('*,workout_days(id,day_name,title,day_order,workout_exercises(exercise_order,sets,reps_min,reps_max,track_mode,duration_target,exercises(name)))').eq('client_id', me.id)),
       ok(sb.from('workout_sessions').select('id,workout_day_id,completed_at,rpe').eq('client_id', me.id).eq('completed', true).order('completed_at', { ascending: false })),
-      ok(sb.from('set_logs').select('weight,reps,duration_seconds,workout_exercises(exercises(category,muscle_group)),workout_sessions!inner(client_id,completed,started_at)').eq('workout_sessions.client_id', me.id).eq('workout_sessions.completed', true)),
+      ok(sb.from('set_logs').select('weight,reps,duration_seconds,workout_exercises(exercises(category,muscle_group)),workout_sessions!inner(client_id,completed,started_at,workout_day_id)').eq('workout_sessions.client_id', me.id).eq('workout_sessions.completed', true)),
       ok(sb.from('rest_checks').select('check_date,activity').eq('client_id', me.id)).catch(() => [])]);
     const RC = new Set((rc || []).map(r => r.check_date + '|' + r.activity));
     const cw = curWeek(ws), wn = h && h[0] === 'sem' ? +h[1] : 0, sorted = [...ws].sort((a, b) => a.week_number - b.week_number), ad = adherence(ws, ses);
@@ -719,7 +718,7 @@ const C = {
     const ps = pend.map(d => { const ex = d.workout_exercises || [], sets = rng(ex.map(x => x.sets)), reps = rng(ex.filter(x => x.track_mode !== 'time').flatMap(x => [x.reps_min, x.reps_max])); return `<a class="ps" href="#/sesion/${d.id}"><span class="pd">${esc((d.day_name || '').slice(0, 3))}</span><div><b>${esc(d.title)}</b><small>${ex.length} ejercicio${ex.length === 1 ? '' : 's'}${sets ? ' · ' + sets + ' series' : ''}${reps ? ' · ' + reps + ' reps' : ''}</small></div></a>`; }).join('');
     html(`<div class="greet"><div><h2>${sal},<br><span class="nm">${esc(first)}</span> 👋</h2>${sub ? `<p class="sub">${sub}</p>` : ''}</div><blockquote class="q">“${quote()}”</blockquote></div>
      ${st.w ? `${bar}${wk3}<div class="car" id="car">${items.map(x => x.html).join('')}</div><div class="dots" id="dots">${items.map((_, k) => `<i class="${k === 0 ? 'on' : ''}"></i>`).join('')}</div>` : '<div class="card">Tu entrenador aún no ha programado tu semana.</div>'}
-     ${volumeCard(vol)}
+     ${volumeCard(vol, st.w, ws)}
      ${st.w ? `<div class="row"><h3>Tus próximas sesiones</h3><a href="#/hist">Ver historial ›</a></div>${ps || '<p class="muted">No tienes sesiones pendientes esta semana. ¡Buen trabajo!</p>'}` : ''}`);
     applyPhotos(st.w);
     const car = document.getElementById('car'), dots = document.getElementById('dots');
