@@ -5,7 +5,9 @@ const fd = d => new Date(d).toLocaleDateString('es-ES', { timeZone: tz });
 const dn = d => new Date(d).toLocaleDateString('es-ES', { timeZone: tz, weekday: 'long' });
 const today = () => new Date().toLocaleDateString('sv-SE', { timeZone: tz });
 let me = null, rec = false;
-const html = h => { $app.innerHTML = h; };
+const hideSplash = () => { const s = document.getElementById('splash'); if (!s) return; s.classList.add('out'); setTimeout(() => s.remove(), 450); };
+const html = h => { $app.innerHTML = h; if (!String(h).includes('Cargando...')) hideSplash(); };
+setTimeout(hideSplash, 8000);
 const ok = async p => { const r = await p; if (r.error) throw r.error; return r.data; };
 const fail = e => { console.error(e); html('<div class="card"><p>No se han podido cargar los datos. Comprueba tu conexión e inténtalo de nuevo.</p><button onclick="route()">Reintentar</button></div>'); };
 const toast = m => { const t = document.createElement('div'); t.className = 'toast'; t.textContent = m; document.body.append(t); setTimeout(() => t.remove(), 3500); };
@@ -103,6 +105,7 @@ const applyTheme = k0 => {
   document.querySelector('meta[name=theme-color]').content = t[2];
   if (dark) { const v = DK; r.setProperty('--d', '#fff'); r.setProperty('--bg', v.bg); r.setProperty('--card', v.card); r.setProperty('--inputbg', v.card); r.setProperty('--border', rgba(t[3], .55)); r.setProperty('--m', v.m); r.setProperty('--sf', v.sf); r.setProperty('--sf2', v.sf2); r.setProperty('--bd', v.bd); root.dataset.mode = 'dark'; }
   else { ['--d', '--bg', '--card', '--inputbg', '--border', '--m', '--sf', '--sf2', '--bd'].forEach(v => r.removeProperty(v)); delete root.dataset.mode; }
+  try { const o = {}; ['--p1', '--p2', '--p3', '--b', '--bg1', '--d', '--bg', '--card', '--inputbg', '--border', '--m', '--sf', '--sf2', '--bd'].forEach(n => { const x = r.getPropertyValue(n); if (x) o[n] = x; }); localStorage.setItem('vm_theme', JSON.stringify({ d: dark, v: o })); } catch (e) { /* sin caché */ }
 };
 const swatchesHtml = cur => { const dark = cur.startsWith('pro_'), reg = dark ? PRO : THEMES; return Object.entries(reg).map(([k, v]) => { const key = dark ? 'pro_' + k : k; return `<button class="swb ${cur === key ? 'on' : ''}" data-t="${key}" title="${v[0]}" style="background:linear-gradient(135deg,${v[1]},${v[3]})"></button>`; }).join(''); };
 function ytId(u) { const m = u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/); return m ? m[1] : null; }
