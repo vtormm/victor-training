@@ -35,18 +35,25 @@ const VGROUP = { 'Tren superior': '#3b82f6', 'Tren inferior': '#34d399', 'Core':
 const volGroup = (cat, mg) => mg === 'Core' ? 'Core' : /^sup_/.test(cat) ? 'Tren superior' : /^inf_/.test(cat) ? 'Tren inferior' : 'Otros';
 const volumeCard = (L, w, ws) => {
   if (!L.length || !w) return '';
-  const dw = {}; (ws || []).forEach(x => (x.workout_days || []).forEach(d => { dw[d.id] = x.id; }));
+  const dw = {}, st0 = {}, dd = (p, q) => Math.round((new Date(p + 'T12:00:00') - new Date(q + 'T12:00:00')) / 864e5); (ws || []).forEach(x => { st0[x.id] = x.week_start; (x.workout_days || []).forEach(d => { dw[d.id] = x.id; }); });
   const ord = [...ws].sort((p, q) => p.week_start < q.week_start ? 1 : -1), ix = ord.findIndex(x => x.id === w.id), prevWk = ix >= 0 ? ord[ix + 1] : null;
-  const B = {}, mk = () => ({ kg: 0, time: 0, cats: {}, grp: {} });
+  const B = {}, mk = () => ({ kg: 0, time: 0, cats: {}, grp: {}, byOff: {}, days: new Set() });
   L.forEach(l => {
     const wid = dw[l.workout_sessions.workout_day_id]; if (!wid) return;
-    const ex = l.workout_exercises.exercises, cat = ex.category || '', b = B[wid] ??= mk(); b.cats[cat] ??= { kg: 0, time: 0 };
+    const ex = l.workout_exercises.exercises, cat = ex.category || '', b = B[wid] ??= mk(), off = dd(dOf(l.workout_sessions.started_at), st0[wid]); b.cats[cat] ??= { kg: 0, time: 0 }; b.days.add(off);
     if (l.duration_seconds != null) { b.time += l.duration_seconds; b.cats[cat].time += l.duration_seconds; }
-    else if (l.weight != null && l.reps != null) { const v = +l.weight * l.reps, g = volGroup(cat, ex.muscle_group); b.kg += v; b.cats[cat].kg += v; b.grp[g] = (b.grp[g] || 0) + v; }
+    else if (l.weight != null && l.reps != null) { const v = +l.weight * l.reps, g = volGroup(cat, ex.muscle_group); b.kg += v; b.cats[cat].kg += v; b.grp[g] = (b.grp[g] || 0) + v; b.byOff[off] = (b.byOff[off] || 0) + v; }
   });
   const cur = B[w.id] || mk(), prev = (prevWk && B[prevWk.id]) || mk(), t = today(), isCurWk = w.week_start <= t && t <= dAdd(w.week_start, 6);
   window.__volLabel = isCurWk ? 'Esta semana' : 'Semana ' + w.week_number;
-  const deltaKg = prev.kg ? Math.round((cur.kg - prev.kg) / prev.kg * 100) : null;
+  // En la semana en curso se compara con los mismos días de la semana anterior (hasta el último día completado), para no mostrar un bajón falso a mitad de semana
+  let prevKg = prev.kg, dLbl = 'vs. semana anterior';
+  if (isCurWk && prevWk) {
+    const to = dd(t, w.week_start), cut = Math.min(6, cur.days.has(to) ? to : to - 1);
+    prevKg = cut < 0 ? 0 : Object.entries(prev.byOff).reduce((s, [o, x]) => +o <= cut ? s + x : s, 0);
+    if (cut < 6) dLbl = 'vs. mismos días de la semana anterior';
+  }
+  const deltaKg = prevKg ? Math.round((cur.kg - prevKg) / prevKg * 100) : null;
   const headline = cur.kg ? `${Math.round(cur.kg).toLocaleString('es-ES')}<small> kg</small>` : cur.time ? fmtTime(cur.time) : '0<small> kg</small>';
   window.__volRows = Object.entries(cur.cats).sort((x, y) => (y[1].kg || y[1].time) - (x[1].kg || x[1].time)).map(([k, v]) => {
     const ref = cur.kg || cur.time || 1, pct = Math.round(((v.kg || v.time) / ref) * 100);
@@ -54,7 +61,7 @@ const volumeCard = (L, w, ws) => {
   }).join('');
   const ent = Object.entries(cur.grp).filter(([, v]) => v > 0).sort((x, y) => y[1] - x[1]), tot = ent.reduce((s, [, v]) => s + v, 0) || 1;
   const seg = ent.length ? `<div class="vseg">${ent.map(([g, v]) => `<i style="flex:${v};background:${VGROUP[g]}"></i>`).join('')}</div><div class="vleg">${ent.map(([g, v]) => `<i style="background:${VGROUP[g]}"></i><span class="n">${g}</span><span>${Math.round(v).toLocaleString('es-ES')} kg</span><span class="p">${Math.round(v / tot * 100)}%</span>`).join('')}</div>` : '<small class="muted">Sin series registradas en esta semana.</small>';
-  return `<div class="card vol"><div class="vh"><b>📦 Volumen ${isCurWk ? 'esta semana' : 'semana ' + w.week_number}</b><button type="button" class="vchev" data-voldet aria-label="Ver detalle del volumen">›</button></div><div class="vb"><div class="vl"><span class="big">${headline}</span>${cur.kg && deltaKg !== null ? `<span class="dl ${deltaKg < 0 ? 'neg' : 'pos'}">${deltaKg < 0 ? '↓' : '↑'} ${Math.abs(deltaKg)}% vs. semana anterior</span>` : ''}</div><div class="vr">${seg}</div></div></div>`;
+  return `<div class="card vol"><div class="vh"><b>📦 Volumen ${isCurWk ? 'esta semana' : 'semana ' + w.week_number}</b><button type="button" class="vchev" data-voldet aria-label="Ver detalle del volumen">›</button></div><div class="vb"><div class="vl"><span class="big">${headline}</span>${cur.kg && deltaKg !== null ? `<span class="dl ${deltaKg < 0 ? 'neg' : 'pos'}">${deltaKg < 0 ? '↓' : '↑'} ${Math.abs(deltaKg)}% ${dLbl}</span>` : ''}</div><div class="vr">${seg}</div></div></div>`;
 };
 document.addEventListener('click', e => { if (!e.target.closest('[data-voldet]')) return; modal(`<h3>Detalle del volumen</h3><p class="muted">${window.__volLabel || 'Esta semana'}, por categoría (anterior / posterior)</p>${window.__volRows || '<p class="muted">Sin datos.</p>'}`, 'center'); });
 const stat = (ws, ses, wk) => {
@@ -118,7 +125,7 @@ function lastBtn(exId, sid) { return exId ? `<button type="button" class="ibtn" 
 function iconRow(desc, url, exId, sid) { const a = infoBtn(desc), b = videoIconBtn(url), c = lastBtn(exId, sid); return (a || b || c) ? `<span class="iconrow">${a}${b}${c}</span>` : ''; }
 document.addEventListener('click', async e => {
   const b = e.target.closest('[data-last]'); if (!b) return;
-  const m = modal('<h3>Última vez</h3><p class="muted">Buscando…</p>'), card = m.querySelector('.mod');
+  const m = modal('<h3>Última vez</h3><p class="muted">Buscando…</p>', 'center'), card = m.querySelector('.mod');
   try {
     let q = sb.from('set_logs').select('session_id,set_number,weight,reps,duration_seconds,variant,workout_exercises!inner(exercise_id),workout_sessions!inner(started_at,client_id)').eq('workout_exercises.exercise_id', b.dataset.last).eq('workout_sessions.client_id', me.id);
     if (b.dataset.sid) q = q.neq('session_id', b.dataset.sid);
@@ -126,7 +133,10 @@ document.addEventListener('click', async e => {
     if (!L.length) { card.querySelector('p').textContent = 'Aún no tienes registros de este ejercicio.'; return; }
     const last = L.reduce((p, l) => l.workout_sessions.started_at > p ? l.workout_sessions.started_at : p, ''), S = L.filter(l => l.workout_sessions.started_at === last).sort((x, y) => x.set_number - y.set_number);
     const row = l => l.duration_seconds ? fmtClock(l.duration_seconds) : `${l.weight} kg × ${l.reps}`, v = S.find(l => l.variant)?.variant;
-    card.querySelector('p').outerHTML = `<p class="muted">${fd(last)}${v ? ' · ' + (VARIANTS[v] || v) : ''}</p><p><b>Última serie: ${row(S[S.length - 1])}</b></p>${S.map(l => `<p>Serie ${l.set_number}: ${row(l)}</p>`).join('')}`;
+    const e1 = l => l.duration_seconds ? l.duration_seconds : (+l.weight) * (1 + (+l.reps) / 30), top = arr => arr.reduce((p, l) => e1(l) > e1(p) ? l : p);
+    const best = top(S), lastSet = S[S.length - 1], rec = top(L.filter(l => !v || l.variant === v));
+    const recLine = e1(rec) > e1(best) ? `<p class="muted lvrec">Tu mejor serie: <b>${row(rec)}</b> · ${fd(rec.workout_sessions.started_at)}</p>` : '';
+    card.querySelector('p').outerHTML = `<p class="muted">${fd(last)}${v ? ' · ' + (VARIANTS[v] || v) : ''}</p><div class="lv2"><div class="lvb best"><small>Mejor serie</small><b>${row(best)}</b></div><div class="lvb"><small>Última serie</small><b>${row(lastSet)}</b></div></div>${recLine}<div class="lvlist">${S.map(l => `<div><span>Serie ${l.set_number}</span><b>${row(l)}</b></div>`).join('')}</div>`;
   } catch (er) { console.error(er); card.querySelector('p').textContent = 'No se ha podido cargar.'; }
 });
 document.addEventListener('click', e => {

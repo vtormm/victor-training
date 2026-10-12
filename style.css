@@ -486,3 +486,12 @@ body[data-role=TRAINER] .card.dcard.done{border-left-color:#4caf7a}
 @keyframes sppulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
 @media (prefers-reduced-motion:reduce){.sp-logo,.sp-bar i{animation:none}.sp-bar i{width:100%}}
 
+/* v42 · ventana "Última vez" con mejor serie */
+.lv2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.lvb{background:var(--sf,#eef3fb);border:1px solid transparent;border-radius:14px;padding:10px 12px}
+.lvb small{display:block;color:var(--m);font-size:12px;margin-bottom:2px}.lvb b{font-size:16px}
+.lvb.best{border-color:var(--b)}
+:root[data-mode="dark"] .lvb.best{border-color:var(--border)}
+.lvrec{margin:4px 0 8px;font-size:13px}
+.lvlist div{display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-top:1px solid var(--bd,#e6e9ef);font-size:14px}
+
